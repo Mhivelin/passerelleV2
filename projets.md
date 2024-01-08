@@ -10,7 +10,7 @@
 - [Plan de table deltic](#plan-de-table-deltic)
 - [Fusion de pdf](#fusion-de-pdf)
 - [Charte cybersecurité deltic](#charte-cybersecurité-deltic)
-- [Export vers FTP](#export-vers-ftp)
+- [export vers FTP](#export-vers-ftp)
 - [Vérification sécurité site Wordpress](#vérification-sécurité-site-wordpress)
 
 
@@ -208,7 +208,7 @@ ensuite, une extraction automatique sera faite par docuware
 - TCPDF
 
 ### Difficultés rencontrées
-- la récupération des données dans la base de données de la <span style="color:0584cb">LPO</span> est compliquée car ils ne m'ont toujours pas donné les accès à la base de données.
+- la récupération des données dans la base de données de la <span style="color:0584cb">LPO</span> est compliquée car ils ne m'ont toujours pas donné les bons accès à la base de données.
 
 ### Etat du projet
 
