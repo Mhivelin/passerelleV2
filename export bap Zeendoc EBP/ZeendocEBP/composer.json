@@ -1,0 +1,15 @@
+{
+  "name": "deltic/zeendocebp",
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Jeremy TRASBOT",
+      "email": "jtrasbot@viennedoc.com"
+    }
+  ],
+  "require": {
+    "guzzlehttp/guzzle": "^7.0"
+  }
+}
