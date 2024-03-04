@@ -1,0 +1,5 @@
+{% extends 'base.html' %} {% block title %} Ajouter un client {% endblock %} {%
+block content %}
+<h1>Ajouter un client</h1>
+
+<form method="post">{{ form.as_p }} {% csrf_token %}</form>

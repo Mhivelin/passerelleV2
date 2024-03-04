@@ -1,0 +1,27 @@
+{% extends 'base.html' %} {% block title %}update{% endblock %} {% block content
+%}
+<h1>Modification de : {{ clientId }}</h1>
+
+<form
+  action="{{ url_for('client.update_client', id=client.id) }}"
+  method="post"
+>
+  {% for support, dic in client.items() %}
+  <h2>{{ support }}</h2>
+
+  {% for clee, champ in dic.items() %}
+  <div class="form-group">
+    <label for="{{ clee }}">{{ clee }} :</label>
+    <input
+      type="text"
+      class="form-control"
+      id="{{ clee }}"
+      name="{{ clee }}"
+      value="{{ champ }}"
+    />
+  </div>
+  {% endfor %} {% endfor %}
+  <button type="submit" class="btn btn-primary">Enregistrer</button>
+</form>
+
+{% endblock %} ```

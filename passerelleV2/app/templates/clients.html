@@ -1,0 +1,63 @@
+{% extends 'base.html' %} {% block title %}Liste des Clients{% endblock %} {%
+block content %}
+<h2>Liste des Clients</h2>
+<table class="table table-striped" id="clientsTable">
+  <thead>
+    <tr>
+      <th>Nom client</th>
+      <th>Classeur</th>
+      <th>Dernière Routine</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for client in clients %}
+    <tr>
+      <td>{{ client.ClientUsername }}</td>
+      <td>{{ client.ClasseurDefined }}</td>
+      <td>{{ client.ClientLastUpdate }}</td>
+      <td>
+        <div class="btn-group" role="group">
+          <form
+            action="{{ url_for('client.delete_client') }}"
+            method="post"
+            onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce client ?')"
+          >
+            <input
+              type="hidden"
+              name="client_id"
+              value="{{ client.ClientID }}"
+            />
+            <button type="submit" class="btn btn-danger">🗑️</button>
+          </form>
+
+          <!-- bouton de redirection vers la page de modification du client -->
+
+          <form
+            action="{{ url_for('client.form_update_client') }}"
+            method="post"
+          >
+            <input
+              type="hidden"
+              name="client_id"
+              value="{{ client.ClientID }}"
+            />
+            <button type="submit" class="btn btn-primary">✏️</button>
+          </form>
+
+          <form action="{{ url_for('client.launch_routine') }}" method="post">
+            <input
+              type="hidden"
+              name="client_id"
+              value="{{ client.ClientID }}"
+            />
+            <button type="submit" class="btn btn-success">🚀</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
