@@ -16,24 +16,18 @@ class TestModels(unittest.TestCase):
         zeendoc = Zeendoc(1)
         zeendoc.BdGetClientZeendoc(1)
         zeendoc.login()
-        
+
         # print(zeendoc.getright()['Collections'])
         self.assertIsNotNone(zeendoc.getright())
-        
+
         self.assertIsNotNone(zeendoc)
-        
-        
+
     def test_get_classeurs(self):
         zeendoc = Zeendoc(1)
         zeendoc.BdGetClientZeendoc(1)
         zeendoc.login()
-        
+
         self.assertIsNotNone(zeendoc.get_classeurs())
-        
-        
-        
-        
-        
 
 
 if __name__ == '__main__':

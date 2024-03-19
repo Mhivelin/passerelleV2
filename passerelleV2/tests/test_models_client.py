@@ -11,29 +11,23 @@ class TestModels(unittest.TestCase):
 
     # def tearDown(self):
     #     self.app_context.pop()
-        
 
-        
     # def test_is_dict_get_Zeendoc(self):
     #     client = Client(1)
     #     client.clientZeendoc.BdGetClientZeendoc(1)
     #     res = client.BdGetClient(1)
     #     self.assertIsInstance(res, dict)
-        
+
     # def test_is_dict_get_EBP(self):
     #     client = Client(1)
     #     client.clientEBP.BdGetClientEBP(1)
     #     res = client.BdGetClient(1)
-    #     self.assertIsInstance(res, dict) 
-    
+    #     self.assertIsInstance(res, dict)
 
     # def test_setLastUpdatenow(self):
     #     client = Client(1)
     #     client.setLastUpdatenow()
-        
-        
+
     def test_routine(self):
         client = Client(1)
         client.routine()
-        
-        

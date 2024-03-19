@@ -16,49 +16,40 @@ class TestModels(unittest.TestCase):
     #     ebp = EBP(1)
     #     ebp.BdGetClientEBP(1)
     #     ebp.login()
-        
-        
-        
+
     #     self.assertIsNotNone(ebp)
-        
+
     def test_get_folders(self):
         ebp = EBP(1)
         ebp.BdGetClientEBP(1)
         ebp.login()
-        
+
         folders = ebp.get_folders()
         print(folders)
-        
+
         self.assertIsNotNone(folders)
-        
-        
-        
+
     # def test_Bdtoken_saver(self):
     #     ebp = EBP(1)
-              
+
     #     ebp.Bdtoken_saver('token')
     #     print(ebp.BdGetClientEBP(1))
-        
+
     # def test_Bdtoken_clear(self):
     #     ebp = EBP(1)
-              
+
     #     ebp.Bdtoken_clear()
     #     print(ebp.BdGetClientEBP(1))
-    
-    
-    
+
     def getSupplier(self):
         ebp = EBP(1)
         ebp.BdGetClientEBP(1)
         ebp.login()
-        
+
         suppliers = ebp.get_suppliers()
         print(suppliers)
-        
+
         self.assertIsNotNone(suppliers)
-        
-        
-        
 
 
 if __name__ == '__main__':
