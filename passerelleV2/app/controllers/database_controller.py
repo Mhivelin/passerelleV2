@@ -1,18 +1,17 @@
-from flask import jsonify, request, redirect, Blueprint
 from app.models import database
+from flask import Blueprint, jsonify, redirect, request
 from flask_login import login_required
-
 
 # Création d'un Blueprint pour le ebp controller
 database_bp = Blueprint(database, __name__)
 
 
-@database_bp.route('/get_passerelles', methods=['GET'])
+@database_bp.route("/get_passerelles", methods=["GET"])
 @login_required
 def get_passerelles():
     passerelles = database.get_all_passerelles
 
-    return jsonify({'passerelles': passerelles})
+    return jsonify({"passerelles": passerelles})
 
 
 @database_bp.route("/add_passerelle", methods=["POST"])

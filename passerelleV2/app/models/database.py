@@ -86,12 +86,12 @@ import sqlite3
 #    FOREIGN KEY(IdPasserelle) REFERENCES PASSERELLE(IdPasserelle)
 # );
 
-
 ################################################################################################################################
 #                                                     Connexion à la base de données                                           #
 
+
 def get_db_connexion():
-    conn = sqlite3.connect('BDPasserelleV2.db')
+    conn = sqlite3.connect("BDPasserelleV2.db")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -102,19 +102,56 @@ def get_db_connexion():
 
 
 def create_database():
+    """
+    Creates the necessary tables in the database if they don't already exist.
+
+    This function executes a series of SQL statements to create the following tables:
+    - CLIENT
+    - LOGICIEL
+    - LOGICIEL_CLIENT
+    - PASSERELLE
+    - API
+    - API_EBP
+    - API_ZEENDOC
+    - EBP_CLIENT
+    - ZEENDOC_CLIENT
+
+    If any of the tables already exist, the corresponding CREATE TABLE statement is skipped.
+
+    Note: This function assumes that the `get_db_connexion` function is defined elsewhere.
+
+    Returns:
+        None
+    """
     conn = get_db_connexion()
     cursor = conn.cursor()
     cursor.execute(
-        "CREATE TABLE IF NOT EXISTS CLIENT(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL)")
+        "CREATE TABLE IF NOT EXISTS CLIENT(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL)"
+    )
     cursor.execute(
-        "CREATE TABLE IF NOT EXISTS LOGICIEL(IdLogiciel INTEGER PRIMARY KEY AUTOINCREMENT, LibLogiciel TEXT)")
-    cursor.execute("CREATE TABLE IF NOT EXISTS LOGICIEL_CLIENT(IdLogiciel INTEGER, id INTEGER, IdLogicielClient INTEGER, PRIMARY KEY(IdLogiciel, id, IdLogicielClient), FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel), FOREIGN KEY(id) REFERENCES CLIENT(id))")
-    cursor.execute("CREATE TABLE IF NOT EXISTS PASSERELLE(IdPasserelle INTEGER PRIMARY KEY AUTOINCREMENT, LibPasserelle TEXT, IdLogiciel INTEGER NOT NULL, IdLogiciel_1 INTEGER NOT NULL, FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel), FOREIGN KEY(IdLogiciel_1) REFERENCES LOGICIEL(IdLogiciel))")
-    cursor.execute("CREATE TABLE IF NOT EXISTS API(IdLogiciel INTEGER, IdApi INTEGER, PRIMARY KEY(IdLogiciel, IdApi), FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel))")
-    cursor.execute("CREATE TABLE IF NOT EXISTS API_EBP(IdLogiciel INTEGER, IdApi INTEGER, Client_Id TEXT, Client_Secret TEXT, Subscription_Key TEXT, Token TEXT, PRIMARY KEY(IdLogiciel, IdApi), FOREIGN KEY(IdLogiciel, IdApi) REFERENCES API(IdLogiciel, IdApi))")
-    cursor.execute("CREATE TABLE IF NOT EXISTS API_ZEENDOC(IdLogiciel INTEGER, IdApi INTEGER, Login TEXT, Password TEXT, UrlClient TEXT, PRIMARY KEY(IdLogiciel, IdApi), FOREIGN KEY(IdLogiciel, IdApi) REFERENCES API(IdLogiciel, IdApi))")
-    cursor.execute("CREATE TABLE IF NOT EXISTS EBP_CLIENT(IdLogiciel INTEGER, id INTEGER, IdLogicielClient INTEGER, Folder_Id TEXT, PRIMARY KEY(IdLogiciel, id, IdLogicielClient), FOREIGN KEY(IdLogiciel, id, IdLogicielClient) REFERENCES LOGICIEL_CLIENT(IdLogiciel, id, IdLogicielClient))")
-    cursor.execute("CREATE TABLE IF NOT EXISTS ZEENDOC_CLIENT(IdLogiciel INTEGER, id INTEGER, IdLogicielClient INTEGER, Index_Statut_Paiement TEXT, Index_Ref_Doc TEXT, Classeur TEXT, PRIMARY KEY(IdLogiciel, id, IdLogicielClient), FOREIGN KEY(IdLogiciel, id, IdLogicielClient) REFERENCES LOGICIEL_CLIENT(IdLogiciel, id, IdLogicielClient))")
+        "CREATE TABLE IF NOT EXISTS LOGICIEL(IdLogiciel INTEGER PRIMARY KEY AUTOINCREMENT, LibLogiciel TEXT)"
+    )
+    cursor.execute(
+        "CREATE TABLE IF NOT EXISTS LOGICIEL_CLIENT(IdLogiciel INTEGER, id INTEGER, IdLogicielClient INTEGER, PRIMARY KEY(IdLogiciel, id, IdLogicielClient), FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel), FOREIGN KEY(id) REFERENCES CLIENT(id))"
+    )
+    cursor.execute(
+        "CREATE TABLE IF NOT EXISTS PASSERELLE(IdPasserelle INTEGER PRIMARY KEY AUTOINCREMENT, LibPasserelle TEXT, IdLogiciel INTEGER NOT NULL, IdLogiciel_1 INTEGER NOT NULL, FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel), FOREIGN KEY(IdLogiciel_1) REFERENCES LOGICIEL(IdLogiciel))"
+    )
+    cursor.execute(
+        "CREATE TABLE IF NOT EXISTS API(IdLogiciel INTEGER, IdApi INTEGER, PRIMARY KEY(IdLogiciel, IdApi), FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel))"
+    )
+    cursor.execute(
+        "CREATE TABLE IF NOT EXISTS API_EBP(IdLogiciel INTEGER, IdApi INTEGER, Client_Id TEXT, Client_Secret TEXT, Subscription_Key TEXT, Token TEXT, PRIMARY KEY(IdLogiciel, IdApi), FOREIGN KEY(IdLogiciel, IdApi) REFERENCES API(IdLogiciel, IdApi))"
+    )
+    cursor.execute(
+        "CREATE TABLE IF NOT EXISTS API_ZEENDOC(IdLogiciel INTEGER, IdApi INTEGER, Login TEXT, Password TEXT, UrlClient TEXT, PRIMARY KEY(IdLogiciel, IdApi), FOREIGN KEY(IdLogiciel, IdApi) REFERENCES API(IdLogiciel, IdApi))"
+    )
+    cursor.execute(
+        "CREATE TABLE IF NOT EXISTS EBP_CLIENT(IdLogiciel INTEGER, id INTEGER, IdLogicielClient INTEGER, Folder_Id TEXT, PRIMARY KEY(IdLogiciel, id, IdLogicielClient), FOREIGN KEY(IdLogiciel, id, IdLogicielClient) REFERENCES LOGICIEL_CLIENT(IdLogiciel, id, IdLogicielClient))"
+    )
+    cursor.execute(
+        "CREATE TABLE IF NOT EXISTS ZEENDOC_CLIENT(IdLogiciel INTEGER, id INTEGER, IdLogicielClient INTEGER, Index_Statut_Paiement TEXT, Index_Ref_Doc TEXT, Classeur TEXT, PRIMARY KEY(IdLogiciel, id, IdLogicielClient), FOREIGN KEY(IdLogiciel, id, IdLogicielClient) REFERENCES LOGICIEL_CLIENT(IdLogiciel, id, IdLogicielClient))"
+    )
 
 
 def execute_query(query, params=None):
@@ -175,7 +212,7 @@ def get_all_records(table_name):
 
 def get_record_by_id(table_name, id_column, id_value):
     query = f"SELECT * FROM {table_name} WHERE {id_column} = ?"
-    return execute_query_single(query, (id_value,))
+    return execute_query_single(query, (id_value, ))
 
 
 def drop_table(table_name):
@@ -187,6 +224,7 @@ def drop_table(table_name):
 #                                                     PASSERELLE                                                              #
 ################################################################################################################################
 
+
 def get_all_passerelles():
     return get_all_records("PASSERELLE")
 
@@ -196,16 +234,21 @@ def get_passerelle_by_id(id_passerelle):
 
 
 def add_passerelle(lib_passerelle, id_logiciel, id_logiciel_1):
-    return add_record("PASSERELLE", ["LibPasserelle", "IdLogiciel", "IdLogiciel_1"], [lib_passerelle, id_logiciel, id_logiciel_1])
+    return add_record(
+        "PASSERELLE",
+        ["LibPasserelle", "IdLogiciel", "IdLogiciel_1"],
+        [lib_passerelle, id_logiciel, id_logiciel_1],
+    )
 
 
 def delete_passerelle(id_passerelle):
-    return delete_record("PASSERELLE", "IdPasserelle = ?", (id_passerelle,))
+    return delete_record("PASSERELLE", "IdPasserelle = ?", (id_passerelle, ))
 
 
 ################################################################################################################################
 #                                                     API EBP                                                                 #
 ################################################################################################################################
+
 
 def get_all_api_ebp():
     return get_all_records("API_EBP")
@@ -216,8 +259,23 @@ def get_api_ebp_by_id(id_logiciel, id_api):
     return execute_query_single(query, (id_logiciel, id_api))
 
 
-def add_api_ebp(id_logiciel, id_api, client_id, client_secret, subscription_key, token):
-    return add_record("API_EBP", ["IdLogiciel", "IdApi", "Client_Id", "Client_Secret", "Subscription_Key", "Token"], [id_logiciel, id_api, client_id, client_secret, subscription_key, token])
+def add_api_ebp(id_logiciel, id_api, client_id, client_secret,
+                subscription_key, token):
+    return add_record(
+        "API_EBP",
+        [
+            "IdLogiciel",
+            "IdApi",
+            "Client_Id",
+            "Client_Secret",
+            "Subscription_Key",
+            "Token",
+        ],
+        [
+            id_logiciel, id_api, client_id, client_secret, subscription_key,
+            token
+        ],
+    )
 
 
 def api_ebp_add_token(id_logiciel, id_api, token):
@@ -226,12 +284,14 @@ def api_ebp_add_token(id_logiciel, id_api, token):
 
 
 def delete_api_ebp(id_logiciel, id_api):
-    return delete_record("API_EBP", "IdLogiciel = ? AND IdApi = ?", (id_logiciel, id_api))
+    return delete_record("API_EBP", "IdLogiciel = ? AND IdApi = ?",
+                         (id_logiciel, id_api))
 
 
 ################################################################################################################################
 #                                                     API ZEENDOC                                                             #
 ################################################################################################################################
+
 
 def get_all_api_zeendoc():
     return get_all_records("API_ZEENDOC")
@@ -243,16 +303,22 @@ def get_api_zeendoc_by_id(id_logiciel, id_api):
 
 
 def add_api_zeendoc(id_logiciel, id_api, login, password, url_client):
-    return add_record("API_ZEENDOC", ["IdLogiciel", "IdApi", "Login", "Password", "UrlClient"], [id_logiciel, id_api, login, password, url_client])
+    return add_record(
+        "API_ZEENDOC",
+        ["IdLogiciel", "IdApi", "Login", "Password", "UrlClient"],
+        [id_logiciel, id_api, login, password, url_client],
+    )
 
 
 def delete_api_zeendoc(id_logiciel, id_api):
-    return delete_record("API_ZEENDOC", "IdLogiciel = ? AND IdApi = ?", (id_logiciel, id_api))
+    return delete_record("API_ZEENDOC", "IdLogiciel = ? AND IdApi = ?",
+                         (id_logiciel, id_api))
 
 
 ################################################################################################################################
 #                                                     EBP CLIENT                                                              #
 ################################################################################################################################
+
 
 def get_all_ebp_clients():
     return get_all_records("EBP_CLIENT")
@@ -260,20 +326,30 @@ def get_all_ebp_clients():
 
 def get_ebp_client_by_id(id_logiciel, id_client, id_logiciel_client):
     query = "SELECT * FROM EBP_CLIENT WHERE IdLogiciel = ? AND id = ? AND IdLogicielClient = ?"
-    return execute_query_single(query, (id_logiciel, id_client, id_logiciel_client))
+    return execute_query_single(query,
+                                (id_logiciel, id_client, id_logiciel_client))
 
 
 def add_ebp_client(id_logiciel, id_client, id_logiciel_client, folder_id):
-    return add_record("EBP_CLIENT", ["IdLogiciel", "id", "IdLogicielClient", "Folder_Id"], [id_logiciel, id_client, id_logiciel_client, folder_id])
+    return add_record(
+        "EBP_CLIENT",
+        ["IdLogiciel", "id", "IdLogicielClient", "Folder_Id"],
+        [id_logiciel, id_client, id_logiciel_client, folder_id],
+    )
 
 
 def delete_ebp_client(id_logiciel, id_client, id_logiciel_client):
-    return delete_record("EBP_CLIENT", "IdLogiciel = ? AND id = ? AND IdLogicielClient = ?", (id_logiciel, id_client, id_logiciel_client))
+    return delete_record(
+        "EBP_CLIENT",
+        "IdLogiciel = ? AND id = ? AND IdLogicielClient = ?",
+        (id_logiciel, id_client, id_logiciel_client),
+    )
 
 
 ################################################################################################################################
 #                                                     ZEENDOC CLIENT                                                          #
 ################################################################################################################################
+
 
 def get_all_zeendoc_clients():
     return get_all_records("ZEENDOC_CLIENT")
@@ -281,41 +357,85 @@ def get_all_zeendoc_clients():
 
 def get_zeendoc_client_by_id(id_logiciel, id_client, id_logiciel_client):
     query = "SELECT * FROM ZEENDOC_CLIENT WHERE IdLogiciel = ? AND id = ? AND IdLogicielClient = ?"
-    return execute_query_single(query, (id_logiciel, id_client, id_logiciel_client))
+    return execute_query_single(query,
+                                (id_logiciel, id_client, id_logiciel_client))
 
 
-def add_zeendoc_client(id_logiciel, id_client, id_logiciel_client, index_statut_paiement, index_ref_doc, classeur):
-    return add_record("ZEENDOC_CLIENT", ["IdLogiciel", "id", "IdLogicielClient", "Index_Statut_Paiement", "Index_Ref_Doc", "Classeur"], [id_logiciel, id_client, id_logiciel_client, index_statut_paiement, index_ref_doc, classeur])
+def add_zeendoc_client(
+    id_logiciel,
+    id_client,
+    id_logiciel_client,
+    index_statut_paiement,
+    index_ref_doc,
+    classeur,
+):
+    return add_record(
+        "ZEENDOC_CLIENT",
+        [
+            "IdLogiciel",
+            "id",
+            "IdLogicielClient",
+            "Index_Statut_Paiement",
+            "Index_Ref_Doc",
+            "Classeur",
+        ],
+        [
+            id_logiciel,
+            id_client,
+            id_logiciel_client,
+            index_statut_paiement,
+            index_ref_doc,
+            classeur,
+        ],
+    )
 
 
 def delete_zeendoc_client(id_logiciel, id_client, id_logiciel_client):
-    return delete_record("ZEENDOC_CLIENT", "IdLogiciel = ? AND id = ? AND IdLogicielClient = ?", (id_logiciel, id_client, id_logiciel_client))
+    return delete_record(
+        "ZEENDOC_CLIENT",
+        "IdLogiciel = ? AND id = ? AND IdLogicielClient = ?",
+        (id_logiciel, id_client, id_logiciel_client),
+    )
 
 
 ################################################################################################################################
 #                                                     CLIENT PASSERELLE                                                        #
 ################################################################################################################################
 
+
 def get_all_client_passerelles():
     return get_all_records("Client_Passerelle")
 
 
-def get_client_passerelle_by_id(id_logiciel, id_client, id_logiciel_client, id_passerelle):
+def get_client_passerelle_by_id(id_logiciel, id_client, id_logiciel_client,
+                                id_passerelle):
     query = "SELECT * FROM Client_Passerelle WHERE IdLogiciel = ? AND id = ? AND IdLogicielClient = ? AND IdPasserelle = ?"
-    return execute_query_single(query, (id_logiciel, id_client, id_logiciel_client, id_passerelle))
+    return execute_query_single(
+        query, (id_logiciel, id_client, id_logiciel_client, id_passerelle))
 
 
-def add_client_passerelle(id_logiciel, id_client, id_logiciel_client, id_passerelle):
-    return add_record("Client_Passerelle", ["IdLogiciel", "id", "IdLogicielClient", "IdPasserelle"], [id_logiciel, id_client, id_logiciel_client, id_passerelle])
+def add_client_passerelle(id_logiciel, id_client, id_logiciel_client,
+                          id_passerelle):
+    return add_record(
+        "Client_Passerelle",
+        ["IdLogiciel", "id", "IdLogicielClient", "IdPasserelle"],
+        [id_logiciel, id_client, id_logiciel_client, id_passerelle],
+    )
 
 
-def delete_client_passerelle(id_logiciel, id_client, id_logiciel_client, id_passerelle):
-    return delete_record("Client_Passerelle", "IdLogiciel = ? AND id = ? AND IdLogicielClient = ? AND IdPasserelle = ?", (id_logiciel, id_client, id_logiciel_client, id_passerelle))
+def delete_client_passerelle(id_logiciel, id_client, id_logiciel_client,
+                             id_passerelle):
+    return delete_record(
+        "Client_Passerelle",
+        "IdLogiciel = ? AND id = ? AND IdLogicielClient = ? AND IdPasserelle = ?",
+        (id_logiciel, id_client, id_logiciel_client, id_passerelle),
+    )
 
 
 ################################################################################################################################
 #                                                     LOGICIEL                                                                #
 ################################################################################################################################
+
 
 def get_all_logiciels():
     return get_all_records("LOGICIEL")
@@ -330,12 +450,13 @@ def add_logiciel(lib_logiciel):
 
 
 def delete_logiciel(id_logiciel):
-    return delete_record("LOGICIEL", "IdLogiciel = ?", (id_logiciel,))
+    return delete_record("LOGICIEL", "IdLogiciel = ?", (id_logiciel, ))
 
 
 ################################################################################################################################
 #                                                LOGICIEL EBP CLIENT                                                           #
 ################################################################################################################################
+
 
 def get_all_logiciel_ebp_clients():
     return get_all_records("LOGICIEL_CLIENT")
@@ -343,41 +464,62 @@ def get_all_logiciel_ebp_clients():
 
 def get_logiciel_ebp_client_by_id(id_logiciel, id_client, id_logiciel_client):
     query = "SELECT * FROM LOGICIEL_CLIENT WHERE IdLogiciel = ? AND id = ? AND IdLogicielClient = ?"
-    return execute_query_single(query, (id_logiciel, id_client, id_logiciel_client))
+    return execute_query_single(query,
+                                (id_logiciel, id_client, id_logiciel_client))
 
 
 def add_logiciel_ebp_client(id_logiciel, id_client, id_logiciel_client):
-    return add_record("LOGICIEL_CLIENT", ["IdLogiciel", "id", "IdLogicielClient"], [id_logiciel, id_client, id_logiciel_client])
+    return add_record(
+        "LOGICIEL_CLIENT",
+        ["IdLogiciel", "id", "IdLogicielClient"],
+        [id_logiciel, id_client, id_logiciel_client],
+    )
 
 
 def delete_logiciel_ebp_client(id_logiciel, id_client, id_logiciel_client):
-    return delete_record("LOGICIEL_CLIENT", "IdLogiciel = ? AND id = ? AND IdLogicielClient = ?", (id_logiciel, id_client, id_logiciel_client))
+    return delete_record(
+        "LOGICIEL_CLIENT",
+        "IdLogiciel = ? AND id = ? AND IdLogicielClient = ?",
+        (id_logiciel, id_client, id_logiciel_client),
+    )
 
 
 ################################################################################################################################
 #                                             LOGICIEL ZEENDOC CLIENT                                                          #
 ################################################################################################################################
 
+
 def get_all_logiciel_zeendoc_clients():
     return get_all_records("LOGICIEL_CLIENT")
 
 
-def get_logiciel_zeendoc_client_by_id(id_logiciel, id_client, id_logiciel_client):
+def get_logiciel_zeendoc_client_by_id(id_logiciel, id_client,
+                                      id_logiciel_client):
     query = "SELECT * FROM LOGICIEL_CLIENT WHERE IdLogiciel = ? AND id = ? AND IdLogicielClient = ?"
-    return execute_query_single(query, (id_logiciel, id_client, id_logiciel_client))
+    return execute_query_single(query,
+                                (id_logiciel, id_client, id_logiciel_client))
 
 
 def add_logiciel_zeendoc_client(id_logiciel, id_client, id_logiciel_client):
-    return add_record("LOGICIEL_CLIENT", ["IdLogiciel", "id", "IdLogicielClient"], [id_logiciel, id_client, id_logiciel_client])
+    return add_record(
+        "LOGICIEL_CLIENT",
+        ["IdLogiciel", "id", "IdLogicielClient"],
+        [id_logiciel, id_client, id_logiciel_client],
+    )
 
 
 def delete_logiciel_zeendoc_client(id_logiciel, id_client, id_logiciel_client):
-    return delete_record("LOGICIEL_CLIENT", "IdLogiciel = ? AND id = ? AND IdLogicielClient = ?", (id_logiciel, id_client, id_logiciel_client))
+    return delete_record(
+        "LOGICIEL_CLIENT",
+        "IdLogiciel = ? AND id = ? AND IdLogicielClient = ?",
+        (id_logiciel, id_client, id_logiciel_client),
+    )
 
 
 ################################################################################################################################
 #                                                     API EBP                                                                 #
 ################################################################################################################################
+
 
 def get_all_api_ebp():
     return get_all_records("API_EBP")
@@ -388,17 +530,38 @@ def get_api_ebp_by_id(id_logiciel, id_api):
     return execute_query_single(query, (id_logiciel, id_api))
 
 
-def add_api_ebp(id_logiciel, id_api, client_id, client_secret, subscription_key, token=None):
-    return add_record("API_EBP", ["IdLogiciel", "IdApi", "Client_Id", "Client_Secret", "Subscription_Key", "Token"], [id_logiciel, id_api, client_id, client_secret, subscription_key, token])
+def add_api_ebp(id_logiciel,
+                id_api,
+                client_id,
+                client_secret,
+                subscription_key,
+                token=None):
+    return add_record(
+        "API_EBP",
+        [
+            "IdLogiciel",
+            "IdApi",
+            "Client_Id",
+            "Client_Secret",
+            "Subscription_Key",
+            "Token",
+        ],
+        [
+            id_logiciel, id_api, client_id, client_secret, subscription_key,
+            token
+        ],
+    )
 
 
 def delete_api_ebp(id_logiciel, id_api):
-    return delete_record("API_EBP", "IdLogiciel = ? AND IdApi = ?", (id_logiciel, id_api))
+    return delete_record("API_EBP", "IdLogiciel = ? AND IdApi = ?",
+                         (id_logiciel, id_api))
 
 
 ################################################################################################################################
 #                                                     API ZEENDOC                                                             #
 ################################################################################################################################
+
 
 def get_all_api_zeendoc():
     return get_all_records("API_ZEENDOC")
@@ -410,16 +573,22 @@ def get_api_zeendoc_by_id(id_logiciel, id_api):
 
 
 def add_api_zeendoc(id_logiciel, id_api, login, password, url_client):
-    return add_record("API_ZEENDOC", ["IdLogiciel", "IdApi", "Login", "Password", "UrlClient"], [id_logiciel, id_api, login, password, url_client])
+    return add_record(
+        "API_ZEENDOC",
+        ["IdLogiciel", "IdApi", "Login", "Password", "UrlClient"],
+        [id_logiciel, id_api, login, password, url_client],
+    )
 
 
 def delete_api_zeendoc(id_logiciel, id_api):
-    return delete_record("API_ZEENDOC", "IdLogiciel = ? AND IdApi = ?", (id_logiciel, id_api))
+    return delete_record("API_ZEENDOC", "IdLogiciel = ? AND IdApi = ?",
+                         (id_logiciel, id_api))
 
 
 ################################################################################################################################
 #                                                     Requête plus complexe                                                    #
 ################################################################################################################################
+
 
 def get_all_client_passerelles_by_id_client(id_client):
     """
@@ -440,7 +609,7 @@ def get_all_client_passerelles_by_id_client(id_client):
     """
 
     # Exécution de la requête avec le paramètre id_client
-    return execute_query(query, (id_client,))
+    return execute_query(query, (id_client, ))
 
 
 def drop_all_tables():

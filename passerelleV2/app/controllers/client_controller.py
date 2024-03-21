@@ -1,14 +1,13 @@
 import json
 import sqlite3
-from flask import jsonify, request, redirect, Blueprint, render_template
+
 # from app.models.database import get_db_connection
 from app.models.client import Client
+from flask import Blueprint, jsonify, redirect, render_template, request
 from flask_login import login_required
 
-
 # Création d'un Blueprint pour le client controller
-client_bp = Blueprint('client', __name__)
-
+client_bp = Blueprint("client", __name__)
 
 # @client_bp.route('/clients', methods=['GET'])
 # @login_required
@@ -30,10 +29,10 @@ client_bp = Blueprint('client', __name__)
 
 
 # route pour récupérer les données d'un client par son id
-@client_bp.route('/client', methods=['GET'])
+@client_bp.route("/client", methods=["GET"])
 @login_required
 def get_client():
-    client_id = request.args.get('id')
+    client_id = request.args.get("id")
     client = client(client_id)
 
     ebp = client.clientEBP.BdGetClientEBP(client_id)
@@ -53,7 +52,6 @@ def get_client():
 #     zeendoc_login = request.form.get('ZEENDOC_LOGIN')
 #     zeendoc_urlclient = request.form.get('ZEENDOC_URLCLIENT')
 #     zeendoc_cpassword = request.form.get('ZEENDOC_CPASSWORD')
-
 
 #     conn = get_db_connection()
 #     try:
@@ -82,33 +80,43 @@ def get_client():
 #         conn.close()
 
 
-@client_bp.route('/form_add_client', methods=['GET'])
+@client_bp.route("/form_add_client", methods=["GET"])
 @login_required
 def form_add_client():
-    return render_template('add_client/add_client_p1.html')
+    return render_template("add_client/add_client_p1.html")
 
 
-@client_bp.route('/update_client', methods=['POST'])
+@client_bp.route("/update_client", methods=["POST"])
 @login_required
 def update_client():
 
-    client_id = request.form.get('client_id')
+    client_id = request.form.get("client_id")
 
-    username = request.form.get('username')
-    LastUpdate = request.form.get('LastUpdate')
-    EBP_CLIENT_ID = request.form.get('EBP_CLIENT_ID')
-    EBP_CLIENT_SECRET = request.form.get('EBP_CLIENT_SECRET')
-    EBP_SUBSCRIPTION_KEY = request.form.get('EBP_SUBSCRIPTION_KEY')
-    EBP_FOLDER_ID = request.form.get('EBP_FOLDER_ID')
-    ZEENDOC_LOGIN = request.form.get('ZEENDOC_LOGIN')
-    ZEENDOC_URLCLIENT = request.form.get('ZEENDOC_URLCLIENT')
-    ZEENDOC_CLASSEUR = request.form.get('ZEENDOC_CLASSEUR')
-    ZEENDOC_CPASSWORD = request.form.get('ZEENDOC_CPASSWORD')
+    username = request.form.get("username")
+    LastUpdate = request.form.get("LastUpdate")
+    EBP_CLIENT_ID = request.form.get("EBP_CLIENT_ID")
+    EBP_CLIENT_SECRET = request.form.get("EBP_CLIENT_SECRET")
+    EBP_SUBSCRIPTION_KEY = request.form.get("EBP_SUBSCRIPTION_KEY")
+    EBP_FOLDER_ID = request.form.get("EBP_FOLDER_ID")
+    ZEENDOC_LOGIN = request.form.get("ZEENDOC_LOGIN")
+    ZEENDOC_URLCLIENT = request.form.get("ZEENDOC_URLCLIENT")
+    ZEENDOC_CLASSEUR = request.form.get("ZEENDOC_CLASSEUR")
+    ZEENDOC_CPASSWORD = request.form.get("ZEENDOC_CPASSWORD")
 
     client = Client(client_id)
 
-    client.update_client(username, LastUpdate, EBP_CLIENT_ID, EBP_CLIENT_SECRET, EBP_SUBSCRIPTION_KEY,
-                         EBP_FOLDER_ID, ZEENDOC_LOGIN, ZEENDOC_URLCLIENT, ZEENDOC_CLASSEUR, ZEENDOC_CPASSWORD)
+    client.update_client(
+        username,
+        LastUpdate,
+        EBP_CLIENT_ID,
+        EBP_CLIENT_SECRET,
+        EBP_SUBSCRIPTION_KEY,
+        EBP_FOLDER_ID,
+        ZEENDOC_LOGIN,
+        ZEENDOC_URLCLIENT,
+        ZEENDOC_CLASSEUR,
+        ZEENDOC_CPASSWORD,
+    )
 
     return redirect("/")
 
@@ -118,11 +126,9 @@ def update_client():
 # def delete_client():
 #     client_id = request.form.get('client_id')
 
-
 #     conn = get_db_connection()
 #     try:
 #         cur = conn.cursor()
-
 
 #         # Supprimer les données de la table CLIENT_EBP
 #         cur.execute("DELETE FROM CLIENT_EBP WHERE id IN (SELECT id_2 FROM CLIENT WHERE id = ?)", (client_id,))
@@ -143,22 +149,22 @@ def update_client():
 #         conn.close()
 
 
-@client_bp.route('/form_update_client', methods=['GET', 'POST'])
+@client_bp.route("/form_update_client", methods=["GET", "POST"])
 @login_required
 def form_update_client():
 
     # si le type de requête est GET, on récupère l'id du client
-    if request.method == 'GET':
-        client_id = request.args.get('id')
+    if request.method == "GET":
+        client_id = request.args.get("id")
 
     # si le type de requête est POST, on récupère l'id du client
-    elif request.method == 'POST':
-        client_id = request.form['client_id']
+    elif request.method == "POST":
+        client_id = request.form["client_id"]
 
     client_instance = Client(client_id)
 
     data_ebp = client_instance.clientEBP.BdGetClientEBP(client_id)
-    if data_ebp['TOKEN_DEFINED'] == 0:
+    if data_ebp["TOKEN_DEFINED"] == 0:
         client_instance.clientEBP.login()
 
     ebp = client_instance.clientEBP.BdGetClientEBP(client_id)
@@ -167,7 +173,7 @@ def form_update_client():
     zeendoc = client_instance.clientZeendoc.BdGetClientZeendoc(client_id)
     zeendoc = dict(zeendoc)
 
-    client_data = ({"ebp": ebp, "zeendoc": zeendoc})
+    client_data = {"ebp": ebp, "zeendoc": zeendoc}
 
     try:
         folders = client_instance.clientEBP.get_folders()
@@ -184,13 +190,20 @@ def form_update_client():
 
     print("classeurs", classeurs)
 
-    return render_template('update_client/update_client_p1.html', client=client_data, client_id=client_id, folders=folders, classeurs=classeurs, client_name=client_instance.username)
+    return render_template(
+        "update_client/update_client_p1.html",
+        client=client_data,
+        client_id=client_id,
+        folders=folders,
+        classeurs=classeurs,
+        client_name=client_instance.username,
+    )
 
 
-@client_bp.route('/launch_routine', methods=['POST'])
+@client_bp.route("/launch_routine", methods=["POST"])
 @login_required
 def launch_routine():
-    client_id = request.form.get('client_id')
+    client_id = request.form.get("client_id")
     client = Client(client_id)
     client.routine()
     return redirect("/")
