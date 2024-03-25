@@ -1,29 +1,43 @@
 # Passerelle DELTIC
 
 ## Description
-Le but de ce projet est de créer une plateforme de gestion passerelle pour les données des clients de deltic.
+La passerelle DELTIC est un projet qui permettra de faire communiquer plusieurs applications entre elles. Elle est basée sur les différentes API des applications à connecter. ce projet as donc pour but de faciliter la communication ainsi que la mise en place des différentes communications entre les applications.
 
 ## Installation
-Pour installer le projet, il suffit de cloner le docker et de lancer la commande `docker-compose up` pour lancer le projet.
+Pour installer la passerelle DELTIC, il suffit de cloner le projet sur votre machine. Ensuite, grace a docker, vous pourrez lancer la passerelle.
 
 ## Utilisation
-Pour utiliser le projet, il suffit de se rendre sur l'adresse `http://XXXXXXXXX:5000` pour accéder à l'interface web.
+Pour utiliser la passerelle DELTIC, il suffit d'avoir les différentes informations de connexion des applications à connecter. ensuite, il suffit de les renseigner dans le formulaire de configuration de la passerelle. Puis, le l'application se chargera de faire la communication entre les applications en suivant sa routine.
 
-## presentation de la plateforme
-La plateforme est composée de 3 parties sous la forme MVC (Model View Controller) :
+## Les différentes passerelles
+### Passerelle 1 : Remontée de paiement (EBP --> Zeendoc)
 
-### Model
-Le model est la partie qui gère les données. Il est composé de 2 parties :
-- La base de données : C'est la partie qui stocke les données des clients.
-- les classes : C'est la partie qui gère les données 
+#### Objectif :
+Remonter les paiements effectués dans EBP vers Zeendoc afin de faciliter cette démarche pour les utilisateurs, automatiser le processus et éviter les erreurs de saisie.
 
-### View
-La vue est la partie qui gère l'interface utilisateur. Elle est composée de 2 parties :
-- Les templates : Ce sont les éléments qui sont communs à toutes les pages web.
-- Les fichiers statiques : Ce sont les fichiers qui sont utilisés pour la mise en forme des pages web.
 
-### Controller
-Le controller est la partie qui gère les requêtes de l'utilisateur, ce sont les routes qui permettent de rediriger l'utilisateur vers la bonne page.
+#### Paramétrage  :
+créer un index de paiement dans Zeendoc
 
-## Auteurs
-- [Marius Hivelin]()
+informations requises pour la configuration :
+Les informations de connexion à l'API EBP
+L'id (EBP Client ID)
+Le client secret (EBP Client Secret)
+La clé d'abonnement (EBP Subscription Key)ici
+Les informations de connexion à l'API Zeendoc
+Le login (Zeendoc login)
+L'url du client (Zeendoc URL Client)
+Le mot de passe (Zeendoc CPassword)
+
+#### Configuration :
+Se rendre sur cette page pour ajouter un nouveau client 
+Remplir les informations requises 
+Valider le formulaire 
+Se rendre sur la page de configuration du client
+Se connecter à l'API EBP grace au bouton
+selectionner les champs requis
+EBP_FOLDER_ID : l'identifiant du dossier EBP
+ZEENDOC_CLASSEUR : l'identifiant du classeur Zeendoc
+Enregistrer les modifications 
+Tester la configuration en lançant une routine 
+
