@@ -152,6 +152,9 @@ def create_database():
     cursor.execute(
         "CREATE TABLE IF NOT EXISTS ZEENDOC_CLIENT(IdLogiciel INTEGER, id INTEGER, IdLogicielClient INTEGER, Index_Statut_Paiement TEXT, Index_Ref_Doc TEXT, Classeur TEXT, PRIMARY KEY(IdLogiciel, id, IdLogicielClient), FOREIGN KEY(IdLogiciel, id, IdLogicielClient) REFERENCES LOGICIEL_CLIENT(IdLogiciel, id, IdLogicielClient))"
     )
+    cursor.execute(
+        "CREATE TABLE IF NOT EXISTS Client_Passerelle(IdLogiciel INTEGER, id INTEGER, IdLogicielClient INTEGER, IdPasserelle INTEGER, PRIMARY KEY(IdLogiciel, id, IdLogicielClient, IdPasserelle), FOREIGN KEY(IdLogiciel, id, IdLogicielClient) REFERENCES LOGICIEL_CLIENT(IdLogiciel, id, IdLogicielClient), FOREIGN KEY(IdPasserelle) REFERENCES PASSERELLE(IdPasserelle))"
+    )
 
 
 def execute_query(query, params=None):
@@ -170,7 +173,8 @@ def execute_query(query, params=None):
 
         # Récupère les résultats seulement pour les requêtes SELECT
         if query.strip().upper().startswith("SELECT"):
-            result = cursor.fetchall()
+            # transforme les résultats en json
+            result = [dict(row) for row in cursor.fetchall()]
             return result
     except Exception as e:
         print(f"An error occurred: {e}")  # Ou utilisez un mécanisme de logging
@@ -188,6 +192,13 @@ def execute_query_single(query, params=None):
         else:
             result = conn.execute(query).fetchone()
         conn.commit()
+        
+        # transforme les résultats en json
+        if result:
+            result = dict(result)
+            
+            
+        
         return result
     except Exception as e:
         return e
@@ -242,6 +253,10 @@ def add_passerelle(lib_passerelle, id_logiciel, id_logiciel_1):
 
 
 def delete_passerelle(id_passerelle):
+    
+    
+    
+    
     return delete_record("PASSERELLE", "IdPasserelle = ?", (id_passerelle, ))
 
 
@@ -330,7 +345,7 @@ def get_ebp_client_by_id(id_logiciel, id_client, id_logiciel_client):
                                 (id_logiciel, id_client, id_logiciel_client))
 
 
-def add_ebp_client(id_logiciel, id_client, id_logiciel_client, folder_id):
+def add_ebp_client(id_logiciel, id_client, id_logiciel_client, folder_id = None):
     return add_record(
         "EBP_CLIENT",
         ["IdLogiciel", "id", "IdLogicielClient", "Folder_Id"],
@@ -367,7 +382,7 @@ def add_zeendoc_client(
     id_logiciel_client,
     index_statut_paiement,
     index_ref_doc,
-    classeur,
+    classeur = None,
 ):
     return add_record(
         "ZEENDOC_CLIENT",
@@ -624,11 +639,3 @@ def drop_all_tables():
     drop_table("ZEENDOC_CLIENT")
 
 
-def select_all_from_all_tables():
-
-    query = "SELECT * FROM CLIENT"
-
-    result = execute_query(query)
-    print("result CLIENT", result)
-
-    return result

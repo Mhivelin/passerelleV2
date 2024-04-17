@@ -1,6 +1,6 @@
 from app.extensions import db
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class User(db.Model, UserMixin):
@@ -33,3 +33,17 @@ class User(db.Model, UserMixin):
 
         """
         self.password = generate_password_hash(password)
+        
+    
+    def verify_password(self, password):
+        """
+        Verify the password of the user.
+
+        Args:
+            password (str): The password to verify.
+
+        Returns:
+            bool: True if the password is correct, False otherwise.
+
+        """
+        return check_password_hash(self.password, password)

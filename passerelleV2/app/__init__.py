@@ -63,11 +63,22 @@ def create_app():
             from app.controllers.ebp_controller import ebp_bp
             from app.controllers.main_controller import main_bp
             from app.controllers.zeendoc_controller import zeendoc_bp
+            from app.controllers.database_controller import database_bp
 
             # Enregistrer les Blueprints
             app.register_blueprint(main_bp)
             app.register_blueprint(client_bp)
             app.register_blueprint(ebp_bp)
             app.register_blueprint(zeendoc_bp)
+            app.register_blueprint(database_bp)
+
+
+
+
+
+
 
             return app
+
+
+

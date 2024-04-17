@@ -1,7 +1,7 @@
 from app.extensions import db
 from app.models import database
 from app.models.user import User
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -29,19 +29,20 @@ def documentation():
     return render_template("documentation.html")
 
 
-@main_bp.route("/login", methods=["GET", "POST"])
+@main_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
         user = User.query.filter_by(username=username).first()
-
-        if user and check_password_hash(user.password, password):
+        if user and user.verify_password(password):
             login_user(user)
-            return redirect(url_for("main.home"))
-
-    return render_template("login.html")
+            flash('Logged in successfully.')
+            return redirect(url_for('main.index')) 
+        else:
+            flash('Invalid username or password.')
+            return redirect(url_for('main.login')) 
+    return render_template('login.html')  
 
 
 @main_bp.route("/register", methods=["GET", "POST"])

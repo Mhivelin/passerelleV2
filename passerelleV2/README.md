@@ -41,3 +41,78 @@ ZEENDOC_CLASSEUR : l'identifiant du classeur Zeendoc
 Enregistrer les modifications 
 Tester la configuration en lançant une routine 
 
+### base de données
+
+```sql
+
+CLIENT {
+    idClient integer PK
+    username string "NOT NULL"
+}
+LOGICIEL {
+    IdLogiciel integer PK
+    LibLogiciel string "NOT NULL"
+}
+PASSERELLE {
+    IdPasserelle integer PK
+    LibPasserelle string "NOT NULL"
+}
+LOGICIEL_CLIENT {
+    idLogicielClient integer PK
+    IdLogiciel integer
+    idClient integer
+}
+LOGICIEL_CLIENT_EBP {
+    idLogicielClient integer PK
+    Folder_Id string "NOT NULL"
+    Client_Id string "NOT NULL"
+    Client_Secret string "NOT NULL"
+    Subscription_Key string "NOT NULL"
+    Token string
+}
+LOGICIEL_CLIENT_ZEENDOC {
+    idLogicielClient integer PK
+    Index_Statut_Paiement string
+    Index_Ref_Doc string
+    Classeur string
+    Login string "NOT NULL"
+    Password string "NOT NULL"
+    UrlClient string "NOT NULL"
+}
+CONNECTE_LOGICIEL_SOURCE {
+    IdPasserelle integer PK
+    IdLogiciel integer
+}
+CONNECTE_LOGICIEL_DESTINATION {
+    IdPasserelle integer PK
+    IdLogiciel integer
+}
+CLIENT_PASSERELLE {
+    idClient integer PK
+    IdPasserelle integer PK
+}
+
+```
+
+
+
+
+# EXPLICATION BDD
+
+## CLIENT
+Le client est la personne qui utilise la passerelle. Il peut avoir plusieurs logiciels et plusieurs passerelles.
+
+## LOGICIEL
+Le logiciel correspond a une catégorie de logiciel, il permet de regrouper les logiciel client
+
+## LOGICIEL_CLIENT
+La table LOGICIEL_CLIENT permet de stocker les informations des clients pour chaque logiciel (id de connexion, etc)
+l'heritage de la table LOGICIEL_CLIENT (pour l'instant LOGICIEL_CLIENT_EBP et LOGICIEL_CLIENT_ZEENDOC) permet de stocker les informations spécifiques a chaque logiciel par exemple, on ne retrouve pas les mêmes informations pour EBP et Zeendoc
+
+## PASSERELLE
+La table PASSERELLE permet de stocker les type de passerelle existant ( pour rappel, une passerelle correspond a une communication entre deux logiciels faites par le code de l'app)
+
+## PASSERELLE_CLIENT
+La table PASSERELLE_CLIENT permet de dire quels clients utilisent quelles passerelles
+
+

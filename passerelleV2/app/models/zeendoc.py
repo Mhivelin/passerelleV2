@@ -1,6 +1,7 @@
 import json
 import sys
 import xml.etree.ElementTree as ET
+import database as db
 
 import requests
 
@@ -10,19 +11,24 @@ import requests
 class Zeendoc:
 
     def __init__(self, id) -> None:
+        
+        infos = db.get_api_zeendoc_by_id(id)
+        
+        
+        
 
-        res = self.BdGetClientZeendoc(id)
+        # res = self.BdGetClientZeendoc(id)
 
-        self.log = res["ZEENDOC_LOGIN"]
-        self.cpassword = res["ZEENDOC_CPASSWORD"]
-        self.urlclient = res["ZEENDOC_URLCLIENT"]
-        self.classeur = res["ZEENDOC_CLASSEUR"]
+        # self.log = res["ZEENDOC_LOGIN"]
+        # self.cpassword = res["ZEENDOC_CPASSWORD"]
+        # self.urlclient = res["ZEENDOC_URLCLIENT"]
+        # self.classeur = res["ZEENDOC_CLASSEUR"]
 
-        self.id = id
+        # self.id = id
 
-        self.co = self.login()
+        # self.co = self.login()
 
-        self.right = self.getright()
+        # self.right = self.getright()
 
     # def BdGetClientZeendoc(self, id):
     #     try:
