@@ -38,11 +38,12 @@ def login():
         if user and user.verify_password(password):
             login_user(user)
             flash('Logged in successfully.')
-            return redirect(url_for('main.index')) 
+            return redirect(url_for('main.home'))
         else:
             flash('Invalid username or password.')
-            return redirect(url_for('main.login')) 
-    return render_template('login.html')  
+            return redirect(url_for('main.login'))
+    return render_template('login.html')
+
 
 
 @main_bp.route("/register", methods=["GET", "POST"])

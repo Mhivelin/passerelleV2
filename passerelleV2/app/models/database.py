@@ -1,111 +1,110 @@
+"""
+Ce module contient des fonctions pour interagir avec la base de données SQLite.
+
+voici le script de création de la base de données :
+
+CREATE TABLE CLIENT(
+   idClient INTEGER,
+   username TEXT NOT NULL,
+   PRIMARY KEY(idClient)
+);
+
+CREATE TABLE LOGICIEL(
+   IdLogiciel INTEGER,
+   LibLogiciel TEXT NOT NULL,
+   PRIMARY KEY(IdLogiciel)
+);
+
+CREATE TABLE PASSERELLE(
+   IdPasserelle INTEGER,
+   LibPasserelle TEXT NOT NULL,
+   PRIMARY KEY(IdPasserelle)
+);
+
+CREATE TABLE LOGICIEL_CLIENT(
+   idLogicielClient INTEGER,
+   IdLogiciel INTEGER NOT NULL,
+   idClient INTEGER NOT NULL,
+   PRIMARY KEY(idLogicielClient),
+   FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel),
+   FOREIGN KEY(idClient) REFERENCES CLIENT(idClient)
+);
+
+CREATE TABLE LOGICIEL_CLIENT_EBP(
+   idLogicielClient INTEGER,
+   Folder_Id TEXT,
+   Client_Id TEXT NOT NULL,
+   Client_Secret TEXT NOT NULL,
+   Subscription_Key TEXT NOT NULL,
+   Token TEXT,
+   PRIMARY KEY(idLogicielClient),
+   FOREIGN KEY(idLogicielClient) REFERENCES LOGICIEL_CLIENT(idLogicielClient)
+);
+
+CREATE TABLE LOGICIEL_CLIENT_ZEENDOC(
+   idLogicielClient INTEGER,
+   Index_Statut_Paiement TEXT,
+   Index_Ref_Doc TEXT,
+   Classeur TEXT,
+   Login TEXT NOT NULL,
+   Password TEXT NOT NULL,
+   UrlClient TEXT NOT NULL,
+   PRIMARY KEY(idLogicielClient),
+   FOREIGN KEY(idLogicielClient) REFERENCES LOGICIEL_CLIENT(idLogicielClient)
+);
+
+CREATE TABLE Connecte_Logiciel_Source(
+   IdPasserelle INTEGER,
+   IdLogiciel INTEGER NOT NULL,
+   PRIMARY KEY(IdPasserelle),
+   FOREIGN KEY(IdPasserelle) REFERENCES PASSERELLE(IdPasserelle),
+   FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel)
+);
+
+CREATE TABLE Connecte_Logiciel_Destination(
+   IdPasserelle INTEGER,
+   IdLogiciel INTEGER NOT NULL,
+   PRIMARY KEY(IdPasserelle),
+   FOREIGN KEY(IdPasserelle) REFERENCES PASSERELLE(IdPasserelle),
+   FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel)
+);
+
+CREATE TABLE CLIENT_PASSERELLE(
+   idClient INTEGER,
+   IdPasserelle INTEGER,
+   PRIMARY KEY(idClient, IdPasserelle),
+   FOREIGN KEY(idClient) REFERENCES CLIENT(idClient),
+   FOREIGN KEY(IdPasserelle) REFERENCES PASSERELLE(IdPasserelle)
+);
+
+"""
+
+
 import sqlite3
 
-# CREATE TABLE CLIENT(
-#    id INTEGER PRIMARY KEY AUTOINCREMENT,
-#    username TEXT NOT NULL
-# );
 
-# CREATE TABLE LOGICIEL(
-#    IdLogiciel INTEGER PRIMARY KEY AUTOINCREMENT,
-#    LibLogiciel TEXT
-# );
-
-# CREATE TABLE LOGICIEL_CLIENT(
-#    IdLogiciel INTEGER,
-#    id INTEGER,
-#    IdLogicielClient INTEGER,
-#    PRIMARY KEY(IdLogiciel, id, IdLogicielClient),
-#    FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel),
-#    FOREIGN KEY(id) REFERENCES CLIENT(id)
-# );
-
-# CREATE TABLE PASSERELLE(
-#    IdPasserelle INTEGER PRIMARY KEY AUTOINCREMENT,
-#    LibPasserelle TEXT,
-#    IdLogiciel INTEGER NOT NULL,
-#    IdLogiciel_1 INTEGER NOT NULL,
-#    FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel),
-#    FOREIGN KEY(IdLogiciel_1) REFERENCES LOGICIEL(IdLogiciel)
-# );
-
-# CREATE TABLE API(
-#    IdLogiciel INTEGER,
-#    IdApi INTEGER,
-#    PRIMARY KEY(IdLogiciel, IdApi),
-#    FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel)
-# );
-
-# CREATE TABLE API_EBP(
-#    IdLogiciel INTEGER,
-#    IdApi INTEGER,
-#    Client_Id TEXT,
-#    Client_Secret TEXT,
-#    Subscription_Key TEXT,
-#    Token TEXT,
-#    PRIMARY KEY(IdLogiciel, IdApi),
-#    FOREIGN KEY(IdLogiciel, IdApi) REFERENCES API(IdLogiciel, IdApi)
-# );
-
-# CREATE TABLE API_ZEENDOC(
-#    IdLogiciel INTEGER,
-#    IdApi INTEGER,
-#    Login TEXT,
-#    Password TEXT,
-#    UrlClient TEXT,
-#    PRIMARY KEY(IdLogiciel, IdApi),
-#    FOREIGN KEY(IdLogiciel, IdApi) REFERENCES API(IdLogiciel, IdApi)
-# );
-
-# CREATE TABLE EBP_CLIENT(
-#    IdLogiciel INTEGER,
-#    id INTEGER,
-#    IdLogicielClient INTEGER,
-#    Folder_Id TEXT,
-#    PRIMARY KEY(IdLogiciel, id, IdLogicielClient),
-#    FOREIGN KEY(IdLogiciel, id, IdLogicielClient) REFERENCES LOGICIEL_CLIENT(IdLogiciel, id, IdLogicielClient)
-# );
-
-# CREATE TABLE ZEENDOC_CLIENT(
-#    IdLogiciel INTEGER,
-#    id INTEGER,
-#    IdLogicielClient INTEGER,
-#    Index_Statut_Paiement TEXT,
-#    Index_Ref_Doc TEXT,
-#    Classeur TEXT,
-#    PRIMARY KEY(IdLogiciel, id, IdLogicielClient),
-#    FOREIGN KEY(IdLogiciel, id, IdLogicielClient) REFERENCES LOGICIEL_CLIENT(IdLogiciel, id, IdLogicielClient)
-# );
-
-# CREATE TABLE Client_Passerelle(
-#    IdLogiciel INTEGER,
-#    id INTEGER,
-#    IdLogicielClient INTEGER,
-#    IdPasserelle INTEGER,
-#    PRIMARY KEY(IdLogiciel, id, IdLogicielClient, IdPasserelle),
-#    FOREIGN KEY(IdLogiciel, id, IdLogicielClient) REFERENCES LOGICIEL_CLIENT(IdLogiciel, id, IdLogicielClient),
-#    FOREIGN KEY(IdPasserelle) REFERENCES PASSERELLE(IdPasserelle)
-# );
-
-################################################################################################################################
-#                                                     Connexion à la base de données                                           #
+#########################################################################################
+#                            Connexion à la base de données                             #
+#########################################################################################
 
 
 def get_db_connexion():
+    """Retourne une connexion à la base de données SQLite."""
     conn = sqlite3.connect("BDPasserelleV2.db")
     conn.row_factory = sqlite3.Row
     return conn
 
 
-################################################################################################################################
-#                                                     CREATE TABLE CLIENT                                                      #
-################################################################################################################################
+#############################################################################################
+#                                        CREATE DATABASE                                    #
+#############################################################################################
 
 
 def create_database():
     """
-    Creates the necessary tables in the database if they don't already exist.
+    Crée les tables nécessaires dans la base de données si elles n'existent pas déjà.
 
-    This function executes a series of SQL statements to create the following tables:
+    Cette fonction exécute une série d'instructions SQL pour créer les tables suivantes :
     - CLIENT
     - LOGICIEL
     - LOGICIEL_CLIENT
@@ -116,74 +115,189 @@ def create_database():
     - EBP_CLIENT
     - ZEENDOC_CLIENT
 
-    If any of the tables already exist, the corresponding CREATE TABLE statement is skipped.
-
-    Note: This function assumes that the `get_db_connexion` function is defined elsewhere.
+    Si l'une des tables existe déjà, l'instruction CREATE TABLE correspondante est ignorée.
 
     Returns:
         None
     """
     conn = get_db_connexion()
     cursor = conn.cursor()
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS CLIENT(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL)"
-    )
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS LOGICIEL(IdLogiciel INTEGER PRIMARY KEY AUTOINCREMENT, LibLogiciel TEXT)"
-    )
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS LOGICIEL_CLIENT(IdLogiciel INTEGER, id INTEGER, IdLogicielClient INTEGER, PRIMARY KEY(IdLogiciel, id, IdLogicielClient), FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel), FOREIGN KEY(id) REFERENCES CLIENT(id))"
-    )
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS PASSERELLE(IdPasserelle INTEGER PRIMARY KEY AUTOINCREMENT, LibPasserelle TEXT, IdLogiciel INTEGER NOT NULL, IdLogiciel_1 INTEGER NOT NULL, FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel), FOREIGN KEY(IdLogiciel_1) REFERENCES LOGICIEL(IdLogiciel))"
-    )
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS API(IdLogiciel INTEGER, IdApi INTEGER, PRIMARY KEY(IdLogiciel, IdApi), FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel))"
-    )
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS API_EBP(IdLogiciel INTEGER, IdApi INTEGER, Client_Id TEXT, Client_Secret TEXT, Subscription_Key TEXT, Token TEXT, PRIMARY KEY(IdLogiciel, IdApi), FOREIGN KEY(IdLogiciel, IdApi) REFERENCES API(IdLogiciel, IdApi))"
-    )
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS API_ZEENDOC(IdLogiciel INTEGER, IdApi INTEGER, Login TEXT, Password TEXT, UrlClient TEXT, PRIMARY KEY(IdLogiciel, IdApi), FOREIGN KEY(IdLogiciel, IdApi) REFERENCES API(IdLogiciel, IdApi))"
-    )
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS EBP_CLIENT(IdLogiciel INTEGER, id INTEGER, IdLogicielClient INTEGER, Folder_Id TEXT, PRIMARY KEY(IdLogiciel, id, IdLogicielClient), FOREIGN KEY(IdLogiciel, id, IdLogicielClient) REFERENCES LOGICIEL_CLIENT(IdLogiciel, id, IdLogicielClient))"
-    )
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS ZEENDOC_CLIENT(IdLogiciel INTEGER, id INTEGER, IdLogicielClient INTEGER, Index_Statut_Paiement TEXT, Index_Ref_Doc TEXT, Classeur TEXT, PRIMARY KEY(IdLogiciel, id, IdLogicielClient), FOREIGN KEY(IdLogiciel, id, IdLogicielClient) REFERENCES LOGICIEL_CLIENT(IdLogiciel, id, IdLogicielClient))"
-    )
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS Client_Passerelle(IdLogiciel INTEGER, id INTEGER, IdLogicielClient INTEGER, IdPasserelle INTEGER, PRIMARY KEY(IdLogiciel, id, IdLogicielClient, IdPasserelle), FOREIGN KEY(IdLogiciel, id, IdLogicielClient) REFERENCES LOGICIEL_CLIENT(IdLogiciel, id, IdLogicielClient), FOREIGN KEY(IdPasserelle) REFERENCES PASSERELLE(IdPasserelle))"
-    )
+
+    # Creation des tables
+
+    # CLIENT
+    if not execute_query("SELECT name FROM sqlite_master WHERE type='table' AND name='CLIENT';"):
+        cursor.execute(
+            """
+            CREATE TABLE CLIENT(
+                idClient INTEGER,
+                username TEXT NOT NULL,
+                PRIMARY KEY(idClient)
+            );""")
+
+    # LOGICIEL
+    if not execute_query("SELECT name FROM sqlite_master WHERE type='table' AND name='LOGICIEL';"):
+        cursor.execute(
+            """
+            CREATE TABLE LOGICIEL(
+                IdLogiciel INTEGER,
+                LibLogiciel TEXT NOT NULL,
+                PRIMARY KEY(IdLogiciel)
+            );""")
+
+    # PASSERELLE
+    if not execute_query("""
+                         SELECT name
+                         FROM sqlite_master
+                         WHERE type='table'
+                         AND name='PASSERELLE';"""):
+        cursor.execute(
+            """
+            CREATE TABLE PASSERELLE(
+                IdPasserelle INTEGER,
+                LibPasserelle TEXT NOT NULL,
+                PRIMARY KEY(IdPasserelle)
+            );""")
+
+    # LOGICIEL_CLIENT
+    if not execute_query("""
+                         SELECT name
+                         FROM sqlite_master
+                         WHERE type='table'
+                         AND name='LOGICIEL_CLIENT';"""):
+        cursor.execute(
+            """
+            CREATE TABLE LOGICIEL_CLIENT(
+                idLogicielClient INTEGER,
+                IdLogiciel INTEGER NOT NULL,
+                idClient INTEGER NOT NULL,
+                PRIMARY KEY(idLogicielClient),
+                FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel),
+                FOREIGN KEY(idClient) REFERENCES CLIENT(idClient)
+            );""")
+
+    # LOGICIEL_CLIENT_EBP
+    if not execute_query("""SELECT name
+                         FROM sqlite_master
+                         WHERE type='table'
+                         AND name='LOGICIEL_CLIENT_EBP';"""):
+        cursor.execute(
+            """
+            CREATE TABLE LOGICIEL_CLIENT_EBP(
+                idLogicielClient INTEGER,
+                Folder_Id TEXT,
+                Client_Id TEXT NOT NULL,
+                Client_Secret TEXT NOT NULL,
+                Subscription_Key TEXT NOT NULL,
+                Token TEXT,
+                PRIMARY KEY(idLogicielClient),
+                FOREIGN KEY(idLogicielClient) REFERENCES LOGICIEL_CLIENT(idLogicielClient)
+            );""")
+
+    # LOGICIEL_CLIENT_ZEENDOC
+    if not execute_query("""SELECT name
+                         FROM sqlite_master
+                         WHERE type='table'
+                         AND name='LOGICIEL_CLIENT_ZEENDOC';"""):
+        cursor.execute(
+            """
+            CREATE TABLE LOGICIEL_CLIENT_ZEENDOC(
+                idLogicielClient INTEGER,
+                Index_Statut_Paiement TEXT,
+                Index_Ref_Doc TEXT,
+                Classeur TEXT,
+                Login TEXT NOT NULL,
+                Password TEXT NOT NULL,
+                UrlClient TEXT NOT NULL,
+                PRIMARY KEY(idLogicielClient),
+                FOREIGN KEY(idLogicielClient) REFERENCES LOGICIEL_CLIENT(idLogicielClient)
+            );""")
+
+    # Connecte_Logiciel_Source
+    if not execute_query("""SELECT name
+                         FROM sqlite_master
+                         WHERE type='table'
+                         AND name='Connecte_Logiciel_Source';"""):
+        cursor.execute(
+            """
+            CREATE TABLE Connecte_Logiciel_Source(
+                IdPasserelle INTEGER,
+                IdLogiciel INTEGER NOT NULL,
+                PRIMARY KEY(IdPasserelle),
+                FOREIGN KEY(IdPasserelle) REFERENCES PASSERELLE(IdPasserelle),
+                FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel)
+            );""")
+
+    # Connecte_Logiciel_Destination
+    if not execute_query("""SELECT name
+                         FROM sqlite_master
+                         WHERE type='table'
+                         AND name='Connecte_Logiciel_Destination';"""):
+        cursor.execute(
+            """
+            CREATE TABLE Connecte_Logiciel_Destination(
+                IdPasserelle INTEGER,
+                IdLogiciel INTEGER NOT NULL,
+                PRIMARY KEY(IdPasserelle),
+                FOREIGN KEY(IdPasserelle) REFERENCES PASSERELLE(IdPasserelle),
+                FOREIGN KEY(IdLogiciel) REFERENCES LOGICIEL(IdLogiciel)
+            );""")
+
+    # CLIENT_PASSERELLE
+    if not execute_query("""SELECT name
+                         FROM sqlite_master
+                         WHERE type='table'
+                         AND name='CLIENT_PASSERELLE';"""):
+        cursor.execute(
+            """
+            CREATE TABLE CLIENT_PASSERELLE(
+                idClient INTEGER,
+                IdPasserelle INTEGER,
+                PRIMARY KEY(idClient, IdPasserelle),
+                FOREIGN KEY(idClient) REFERENCES CLIENT(idClient),
+                FOREIGN KEY(IdPasserelle) REFERENCES PASSERELLE(IdPasserelle)
+            );""")
+
+
 
 
 def execute_query(query, params=None):
+    """Exécute une requête SQL sur la base de données et retourne les résultats
+    si la requête est un SELECT."""
     conn = get_db_connexion()
+
+
 
     try:
         cursor = conn.cursor()
         if params:
+            # Nettoie les paramètres de la requête
+            params = tuple(params)
             cursor.execute(query, params)
         else:
             cursor.execute(query)
 
-        # Ne commit que si la requête n'est pas une SELECT
         if not query.strip().upper().startswith("SELECT"):
             conn.commit()
 
         # Récupère les résultats seulement pour les requêtes SELECT
+        # (pas besoin pour les INSERT, UPDATE, DELETE, etc.)
         if query.strip().upper().startswith("SELECT"):
             # transforme les résultats en json
             result = [dict(row) for row in cursor.fetchall()]
             return result
+
+
     except Exception as e:
-        print(f"An error occurred: {e}")  # Ou utilisez un mécanisme de logging
+        print(f"An error occurred: {e}")
         return None
     finally:
         conn.close()
 
 
 def execute_query_single(query, params=None):
+    """Exécute une requête SQL sur la base de données et retourne un seul résultat si la
+    requête est un SELECT."""
     conn = get_db_connexion()
 
     try:
@@ -192,13 +306,13 @@ def execute_query_single(query, params=None):
         else:
             result = conn.execute(query).fetchone()
         conn.commit()
-        
+
         # transforme les résultats en json
         if result:
             result = dict(result)
-            
-            
-        
+
+
+
         return result
     except Exception as e:
         return e
@@ -207,402 +321,319 @@ def execute_query_single(query, params=None):
 
 
 def add_record(table_name, columns, values):
-    query = f"INSERT INTO {table_name}({', '.join(columns)}) VALUES ({', '.join(['?'] * len(values))})"
+    """Ajoute un enregistrement à la table spécifiée avec les colonnes et valeurs spécifiées."""
+    query = f"""INSERT INTO {table_name}({', '.join(columns)})
+    VALUES ({', '.join(['?'] * len(values))})"""
     return execute_query(query, values)
 
 
 def delete_record(table_name, condition, params):
+    """Supprime un enregistrement de la table spécifiée en fonction de
+    la condition et des paramètres spécifiés."""
     query = f"DELETE FROM {table_name} WHERE {condition}"
     return execute_query(query, params)
 
 
 def get_all_records(table_name):
+    """Récupère tous les enregistrements de la table spécifiée."""
     query = f"SELECT * FROM {table_name}"
     return execute_query(query)
 
 
 def get_record_by_id(table_name, id_column, id_value):
+    """Récupère un enregistrement spécifique de la table spécifiée en fonction de
+    la colonne et de la valeur d'identifiant."""
     query = f"SELECT * FROM {table_name} WHERE {id_column} = ?"
     return execute_query_single(query, (id_value, ))
 
 
 def drop_table(table_name):
+    """Supprime la table spécifiée de la base de données."""
     query = f"DROP TABLE IF EXISTS {table_name}"
     return execute_query(query)
 
 
-################################################################################################################################
-#                                                     PASSERELLE                                                              #
-################################################################################################################################
+###################################################################################################
+#                                        PASSERELLE                                              #
+###################################################################################################
 
 
 def get_all_passerelles():
+    """Récupère toutes les passerelles de la base de données."""
+
     return get_all_records("PASSERELLE")
 
 
 def get_passerelle_by_id(id_passerelle):
+    """Récupère une passerelle spécifique en fonction de son identifiant."""
+
     return get_record_by_id("PASSERELLE", "IdPasserelle", id_passerelle)
 
 
-def add_passerelle(lib_passerelle, id_logiciel, id_logiciel_1):
-    return add_record(
-        "PASSERELLE",
-        ["LibPasserelle", "IdLogiciel", "IdLogiciel_1"],
-        [lib_passerelle, id_logiciel, id_logiciel_1],
-    )
-
 
 def delete_passerelle(id_passerelle):
-    
-    
-    
-    
+    """Supprime une passerelle spécifique en fonction de son identifiant."""
+
     return delete_record("PASSERELLE", "IdPasserelle = ?", (id_passerelle, ))
 
+def get_passerelle_by_logiciel(logiciel_id):
+    """Récupère toutes les passerelles associées à un logiciel spécifique."""
+    query = """
+        SELECT DISTINCT p.*
+        FROM (
+            SELECT IdPasserelle
+            FROM Connecte_Logiciel_Source
+            WHERE IdLogiciel = ?
 
-################################################################################################################################
-#                                                     API EBP                                                                 #
-################################################################################################################################
+            UNION
 
-
-def get_all_api_ebp():
-    return get_all_records("API_EBP")
-
-
-def get_api_ebp_by_id(id_logiciel, id_api):
-    query = "SELECT * FROM API_EBP WHERE IdLogiciel = ? AND IdApi = ?"
-    return execute_query_single(query, (id_logiciel, id_api))
-
-
-def add_api_ebp(id_logiciel, id_api, client_id, client_secret,
-                subscription_key, token):
-    return add_record(
-        "API_EBP",
-        [
-            "IdLogiciel",
-            "IdApi",
-            "Client_Id",
-            "Client_Secret",
-            "Subscription_Key",
-            "Token",
-        ],
-        [
-            id_logiciel, id_api, client_id, client_secret, subscription_key,
-            token
-        ],
-    )
+            SELECT IdPasserelle
+            FROM Connecte_Logiciel_Destination
+            WHERE IdLogiciel = ?
+        ) AS pass_ids
+        JOIN PASSERELLE AS p ON pass_ids.IdPasserelle = p.IdPasserelle
+    """
+    return execute_query(query, (logiciel_id, logiciel_id))
 
 
-def api_ebp_add_token(id_logiciel, id_api, token):
-    query = "UPDATE API_EBP SET Token = ? WHERE IdLogiciel = ? AND IdApi = ?"
-    return execute_query(query, (token, id_logiciel, id_api))
+def get_passerelle_by_client(client_id):
+    """Récupère toutes les passerelles associées à un client spécifique."""
+    query = """
+        SELECT DISTINCT p.*
+        FROM (
+            SELECT IdPasserelle
+            FROM CLIENT_PASSERELLE
+            WHERE idClient = ?
+        ) AS pass_ids
+        JOIN PASSERELLE AS p ON pass_ids.IdPasserelle = p.IdPasserelle
+    """
+    return execute_query(query, (client_id, ))
 
 
-def delete_api_ebp(id_logiciel, id_api):
-    return delete_record("API_EBP", "IdLogiciel = ? AND IdApi = ?",
-                         (id_logiciel, id_api))
+def add_passerelle_with_connectors(lib_passerelle, source_logiciel_id, destination_logiciel_id):
+    """Ajoute une passerelle avec des connecteurs source et destination spécifiés.
+    note: requiert des logiciels existants dans la base de données.
+    """
+    try:
+        # Ajouter la passerelle
+        passerelle_id = add_passerelle(lib_passerelle)
+
+        # Ajouter les connecteurs source et destination
+        if passerelle_id:
+            add_connecteur_source(passerelle_id, source_logiciel_id)
+            add_connecteur_destination(passerelle_id, destination_logiciel_id)
+
+        return passerelle_id
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+
+def add_passerelle(lib_passerelle):
+    """Ajoute une passerelle avec le libellé spécifié."""
+    return add_record("PASSERELLE", ["LibPasserelle"], [lib_passerelle])
+
+def add_connecteur_source(passerelle_id, logiciel_id):
+    """Ajoute un connecteur source pour une passerelle spécifique et un logiciel spécifique."""
+    return add_record("Connecte_Logiciel_Source",
+                      ["IdPasserelle",
+                       "IdLogiciel"],
+                      [passerelle_id,
+                       logiciel_id])
+
+def add_connecteur_destination(passerelle_id, logiciel_id):
+    """Ajoute un connecteur de destination pour une passerelle spécifique et un
+    logiciel spécifique."""
+    return add_record("Connecte_Logiciel_Destination",
+                      ["IdPasserelle", "IdLogiciel"],
+                      [passerelle_id, logiciel_id])
+
+def delete_connecteur_source(passerelle_id):
+    """Supprime un connecteur source pour une passerelle spécifique."""
+    return delete_record("Connecte_Logiciel_Source", "IdPasserelle = ?", (passerelle_id, ))
+
+def delete_connecteur_destination(passerelle_id):
+    """Supprime un connecteur de destination pour une passerelle spécifique."""
+    return delete_record("Connecte_Logiciel_Destination", "IdPasserelle = ?", (passerelle_id, ))
+
+def get_connecteur_source_by_id(passerelle_id):
+    """Récupère un connecteur source pour une passerelle spécifique."""
+    query = "SELECT * FROM Connecte_Logiciel_Source WHERE IdPasserelle = ?"
+    return execute_query_single(query, (passerelle_id, ))
+
+def get_connecteur_destination_by_id(passerelle_id):
+    """Récupère un connecteur de destination pour une passerelle spécifique."""
+    query = "SELECT * FROM Connecte_Logiciel_Destination WHERE IdPasserelle = ?"
+    return execute_query_single(query, (passerelle_id, ))
 
 
-################################################################################################################################
-#                                                     API ZEENDOC                                                             #
-################################################################################################################################
 
 
-def get_all_api_zeendoc():
-    return get_all_records("API_ZEENDOC")
+##########################################################################################
+#                                       CLIENT                                          #
+##########################################################################################
 
 
-def get_api_zeendoc_by_id(id_logiciel, id_api):
-    query = "SELECT * FROM API_ZEENDOC WHERE IdLogiciel = ? AND IdApi = ?"
-    return execute_query_single(query, (id_logiciel, id_api))
+def get_all_clients():
+    """Récupère tous les clients de la base de données."""
+    return get_all_records("CLIENT")
+
+def get_client_by_id(id_client):
+    """Récupère un client spécifique en fonction de son identifiant."""
+    return get_record_by_id("CLIENT", "idClient", id_client)
+
+def add_client(username):
+    """Ajoute un client avec le nom d'utilisateur spécifié."""
+    return add_record("CLIENT", ["username"], [username])
+
+def delete_client(id_client):
+    """Supprime un client spécifique en fonction de son identifiant."""
+    return delete_record("CLIENT", "idClient = ?", (id_client, ))
+
+def get_client_by_logiciel(logiciel_id):
+    """Récupère tous les clients associés à un logiciel spécifique."""
+    query = """
+        SELECT DISTINCT c.*
+        FROM (
+            SELECT idClient
+            FROM LOGICIEL_CLIENT
+            WHERE IdLogiciel = ?
+        ) AS client_ids
+        JOIN CLIENT AS c ON client_ids.idClient = c.idClient
+    """
+    return execute_query(query, (logiciel_id, ))
+
+def get_client_by_passerelle(passerelle_id):
+    """Récupère tous les clients associés à une passerelle spécifique."""
+    query = """
+        SELECT DISTINCT c.*
+        FROM (
+            SELECT idClient
+            FROM CLIENT_PASSERELLE
+            WHERE IdPasserelle = ?
+        ) AS client_ids
+        JOIN CLIENT AS c ON client_ids.idClient = c.idClient
+    """
+    return execute_query(query, (passerelle_id, ))
+
+def add_client_passerelle(id_client, id_passerelle):
+    """Ajoute un client à une passerelle spécifique."""
+    return add_record("CLIENT_PASSERELLE", ["idClient", "IdPasserelle"], [id_client, id_passerelle])
+
+def delete_client_passerelle(id_client, id_passerelle):
+    """Supprime un client d'une passerelle spécifique."""
+    return delete_record("CLIENT_PASSERELLE",
+                         "idClient = ? AND IdPasserelle = ?",
+                         (id_client, id_passerelle))
+
+def get_client_passerelle_by_id(id_client, id_passerelle):
+    """Récupère un client de passerelle spécifique en fonction de l'identifiant du client et de
+    l'identifiant de la passerelle."""
+    query = "SELECT * FROM CLIENT_PASSERELLE WHERE idClient = ? AND IdPasserelle = ?"
+    return execute_query_single(query, (id_client, id_passerelle))
 
 
-def add_api_zeendoc(id_logiciel, id_api, login, password, url_client):
-    return add_record(
-        "API_ZEENDOC",
-        ["IdLogiciel", "IdApi", "Login", "Password", "UrlClient"],
-        [id_logiciel, id_api, login, password, url_client],
-    )
 
 
-def delete_api_zeendoc(id_logiciel, id_api):
-    return delete_record("API_ZEENDOC", "IdLogiciel = ? AND IdApi = ?",
-                         (id_logiciel, id_api))
 
 
-################################################################################################################################
-#                                                     EBP CLIENT                                                              #
-################################################################################################################################
-
-
-def get_all_ebp_clients():
-    return get_all_records("EBP_CLIENT")
-
-
-def get_ebp_client_by_id(id_logiciel, id_client, id_logiciel_client):
-    query = "SELECT * FROM EBP_CLIENT WHERE IdLogiciel = ? AND id = ? AND IdLogicielClient = ?"
-    return execute_query_single(query,
-                                (id_logiciel, id_client, id_logiciel_client))
-
-
-def add_ebp_client(id_logiciel, id_client, id_logiciel_client, folder_id = None):
-    return add_record(
-        "EBP_CLIENT",
-        ["IdLogiciel", "id", "IdLogicielClient", "Folder_Id"],
-        [id_logiciel, id_client, id_logiciel_client, folder_id],
-    )
-
-
-def delete_ebp_client(id_logiciel, id_client, id_logiciel_client):
-    return delete_record(
-        "EBP_CLIENT",
-        "IdLogiciel = ? AND id = ? AND IdLogicielClient = ?",
-        (id_logiciel, id_client, id_logiciel_client),
-    )
-
-
-################################################################################################################################
-#                                                     ZEENDOC CLIENT                                                          #
-################################################################################################################################
-
-
-def get_all_zeendoc_clients():
-    return get_all_records("ZEENDOC_CLIENT")
-
-
-def get_zeendoc_client_by_id(id_logiciel, id_client, id_logiciel_client):
-    query = "SELECT * FROM ZEENDOC_CLIENT WHERE IdLogiciel = ? AND id = ? AND IdLogicielClient = ?"
-    return execute_query_single(query,
-                                (id_logiciel, id_client, id_logiciel_client))
-
-
-def add_zeendoc_client(
-    id_logiciel,
-    id_client,
-    id_logiciel_client,
-    index_statut_paiement,
-    index_ref_doc,
-    classeur = None,
-):
-    return add_record(
-        "ZEENDOC_CLIENT",
-        [
-            "IdLogiciel",
-            "id",
-            "IdLogicielClient",
-            "Index_Statut_Paiement",
-            "Index_Ref_Doc",
-            "Classeur",
-        ],
-        [
-            id_logiciel,
-            id_client,
-            id_logiciel_client,
-            index_statut_paiement,
-            index_ref_doc,
-            classeur,
-        ],
-    )
-
-
-def delete_zeendoc_client(id_logiciel, id_client, id_logiciel_client):
-    return delete_record(
-        "ZEENDOC_CLIENT",
-        "IdLogiciel = ? AND id = ? AND IdLogicielClient = ?",
-        (id_logiciel, id_client, id_logiciel_client),
-    )
-
-
-################################################################################################################################
-#                                                     CLIENT PASSERELLE                                                        #
-################################################################################################################################
-
-
-def get_all_client_passerelles():
-    return get_all_records("Client_Passerelle")
-
-
-def get_client_passerelle_by_id(id_logiciel, id_client, id_logiciel_client,
-                                id_passerelle):
-    query = "SELECT * FROM Client_Passerelle WHERE IdLogiciel = ? AND id = ? AND IdLogicielClient = ? AND IdPasserelle = ?"
-    return execute_query_single(
-        query, (id_logiciel, id_client, id_logiciel_client, id_passerelle))
-
-
-def add_client_passerelle(id_logiciel, id_client, id_logiciel_client,
-                          id_passerelle):
-    return add_record(
-        "Client_Passerelle",
-        ["IdLogiciel", "id", "IdLogicielClient", "IdPasserelle"],
-        [id_logiciel, id_client, id_logiciel_client, id_passerelle],
-    )
-
-
-def delete_client_passerelle(id_logiciel, id_client, id_logiciel_client,
-                             id_passerelle):
-    return delete_record(
-        "Client_Passerelle",
-        "IdLogiciel = ? AND id = ? AND IdLogicielClient = ? AND IdPasserelle = ?",
-        (id_logiciel, id_client, id_logiciel_client, id_passerelle),
-    )
-
-
-################################################################################################################################
-#                                                     LOGICIEL                                                                #
-################################################################################################################################
+#############################################################################################
+#                                       LOGICIEL                                           #
+#############################################################################################
 
 
 def get_all_logiciels():
+    """Récupère tous les logiciels de la base de données."""
     return get_all_records("LOGICIEL")
 
 
 def get_logiciel_by_id(id_logiciel):
+    """Récupère un logiciel spécifique en fonction de son identifiant."""
     return get_record_by_id("LOGICIEL", "IdLogiciel", id_logiciel)
 
 
 def add_logiciel(lib_logiciel):
+    """Ajoute un logiciel avec le libellé spécifié."""
     return add_record("LOGICIEL", ["LibLogiciel"], [lib_logiciel])
 
 
 def delete_logiciel(id_logiciel):
+    """Supprime un logiciel spécifique en fonction de son identifiant."""
     return delete_record("LOGICIEL", "IdLogiciel = ?", (id_logiciel, ))
 
 
-################################################################################################################################
-#                                                LOGICIEL EBP CLIENT                                                           #
-################################################################################################################################
+#############################################################################################
+#                                  LOGICIEL EBP CLIENT                                      #
+#############################################################################################
 
 
 def get_all_logiciel_ebp_clients():
+    """Récupère tous les clients de logiciel EBP de la base de données."""
     return get_all_records("LOGICIEL_CLIENT")
 
 
-def get_logiciel_ebp_client_by_id(id_logiciel, id_client, id_logiciel_client):
-    query = "SELECT * FROM LOGICIEL_CLIENT WHERE IdLogiciel = ? AND id = ? AND IdLogicielClient = ?"
-    return execute_query_single(query,
-                                (id_logiciel, id_client, id_logiciel_client))
+def get_logiciel_ebp_client_by_id(id_logiciel_client):
+    """Récupère un client de logiciel EBP spécifique en fonction de l'identifiant du
+    client de logiciel."""
+    query = "SELECT * FROM LOGICIEL_CLIENT WHERE IdLogicielClient = ?"
+    return execute_query_single(query, (id_logiciel_client, ))
 
 
 def add_logiciel_ebp_client(id_logiciel, id_client, id_logiciel_client):
+    """Ajoute un client de logiciel EBP avec les informations spécifiées."""
     return add_record(
         "LOGICIEL_CLIENT",
-        ["IdLogiciel", "id", "IdLogicielClient"],
+        ["IdLogiciel", "idLogicielClient", "idClient"],
         [id_logiciel, id_client, id_logiciel_client],
     )
 
 
-def delete_logiciel_ebp_client(id_logiciel, id_client, id_logiciel_client):
+def delete_logiciel_ebp_client(id_logiciel_client):
+    """Supprime un client de logiciel EBP spécifique en fonction de l'identifiant du
+    client de logiciel."""
     return delete_record(
         "LOGICIEL_CLIENT",
-        "IdLogiciel = ? AND id = ? AND IdLogicielClient = ?",
-        (id_logiciel, id_client, id_logiciel_client),
-    )
+        "IdLogicielClient = ?",
+        (id_logiciel_client, ))
 
 
-################################################################################################################################
-#                                             LOGICIEL ZEENDOC CLIENT                                                          #
-################################################################################################################################
+
+############################################################################################
+#                                   LOGICIEL ZEENDOC CLIENT                                #
+############################################################################################
 
 
 def get_all_logiciel_zeendoc_clients():
+    """Récupère tous les clients de logiciel Zeendoc de la base de données."""
     return get_all_records("LOGICIEL_CLIENT")
 
 
-def get_logiciel_zeendoc_client_by_id(id_logiciel, id_client,
-                                      id_logiciel_client):
-    query = "SELECT * FROM LOGICIEL_CLIENT WHERE IdLogiciel = ? AND id = ? AND IdLogicielClient = ?"
-    return execute_query_single(query,
-                                (id_logiciel, id_client, id_logiciel_client))
+def get_logiciel_zeendoc_client_by_id(id_logiciel_client):
+    """Récupère un client de logiciel Zeendoc spécifique en fonction de l'identifiant du
+    client de logiciel."""
+    query = "SELECT * FROM LOGICIEL_CLIENT WHERE IdLogicielClient = ?"
+    return execute_query_single(query, (id_logiciel_client, ))
 
 
 def add_logiciel_zeendoc_client(id_logiciel, id_client, id_logiciel_client):
+    """Ajoute un client de logiciel Zeendoc avec les informations spécifiées."""
     return add_record(
         "LOGICIEL_CLIENT",
-        ["IdLogiciel", "id", "IdLogicielClient"],
+        ["IdLogiciel", "idLogicielClient", "idClient"],
         [id_logiciel, id_client, id_logiciel_client],
     )
 
 
-def delete_logiciel_zeendoc_client(id_logiciel, id_client, id_logiciel_client):
-    return delete_record(
-        "LOGICIEL_CLIENT",
-        "IdLogiciel = ? AND id = ? AND IdLogicielClient = ?",
-        (id_logiciel, id_client, id_logiciel_client),
-    )
+def delete_logiciel_zeendoc_client(id_logiciel_client):
+    """Supprime un client de logiciel Zeendoc spécifique en fonction de l'identifiant du
+    client de logiciel."""
+    return delete_record("LOGICIEL_CLIENT", "IdLogicielClient = ?",
+                         (id_logiciel_client, ))
 
 
-################################################################################################################################
-#                                                     API EBP                                                                 #
-################################################################################################################################
 
-
-def get_all_api_ebp():
-    return get_all_records("API_EBP")
-
-
-def get_api_ebp_by_id(id_logiciel, id_api):
-    query = "SELECT * FROM API_EBP WHERE IdLogiciel = ? AND IdApi = ?"
-    return execute_query_single(query, (id_logiciel, id_api))
-
-
-def add_api_ebp(id_logiciel,
-                id_api,
-                client_id,
-                client_secret,
-                subscription_key,
-                token=None):
-    return add_record(
-        "API_EBP",
-        [
-            "IdLogiciel",
-            "IdApi",
-            "Client_Id",
-            "Client_Secret",
-            "Subscription_Key",
-            "Token",
-        ],
-        [
-            id_logiciel, id_api, client_id, client_secret, subscription_key,
-            token
-        ],
-    )
-
-
-def delete_api_ebp(id_logiciel, id_api):
-    return delete_record("API_EBP", "IdLogiciel = ? AND IdApi = ?",
-                         (id_logiciel, id_api))
-
-
-################################################################################################################################
-#                                                     API ZEENDOC                                                             #
-################################################################################################################################
-
-
-def get_all_api_zeendoc():
-    return get_all_records("API_ZEENDOC")
-
-
-def get_api_zeendoc_by_id(id_logiciel, id_api):
-    query = "SELECT * FROM API_ZEENDOC WHERE IdLogiciel = ? AND IdApi = ?"
-    return execute_query_single(query, (id_logiciel, id_api))
-
-
-def add_api_zeendoc(id_logiciel, id_api, login, password, url_client):
-    return add_record(
-        "API_ZEENDOC",
-        ["IdLogiciel", "IdApi", "Login", "Password", "UrlClient"],
-        [id_logiciel, id_api, login, password, url_client],
-    )
-
-
-def delete_api_zeendoc(id_logiciel, id_api):
-    return delete_record("API_ZEENDOC", "IdLogiciel = ? AND IdApi = ?",
-                         (id_logiciel, id_api))
-
-
-################################################################################################################################
-#                                                     Requête plus complexe                                                    #
-################################################################################################################################
+#######################################################################################
+#                                  Requête plus complexe                              #
+#######################################################################################
 
 
 def get_all_client_passerelles_by_id_client(id_client):
@@ -628,6 +659,7 @@ def get_all_client_passerelles_by_id_client(id_client):
 
 
 def drop_all_tables():
+    """ Supprime toutes les tables de la base de données."""
     drop_table("CLIENT")
     drop_table("LOGICIEL")
     drop_table("LOGICIEL_CLIENT")
@@ -637,5 +669,3 @@ def drop_all_tables():
     drop_table("API_ZEENDOC")
     drop_table("EBP_CLIENT")
     drop_table("ZEENDOC_CLIENT")
-
-

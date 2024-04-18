@@ -1,5 +1,11 @@
+"""
+
+"""
+
+
+
 from app.models import database
-from flask import Blueprint, jsonify, redirect, request
+from flask import Blueprint, jsonify, request
 from flask_login import login_required
 
 # Création d'un Blueprint pour le ebp controller
@@ -7,381 +13,260 @@ database_bp = Blueprint("database", __name__)
 
 
 
-# def row_to_json(row):
-#     """
-#     Convert a row to a JSON object.
-#     """
-#     res = dict(row)
-#     return jsonify(res)
+###################################################################################################
+#                                        PASSERELLE                                              #
+###################################################################################################
 
-
-
-
-################################################################################################################################
-#                                                     PASSERELLE                                                              #
-################################################################################################################################
-
-
-@database_bp.route("/get_all_passerelles", methods=["GET"])
+@database_bp.route("/database/passerelle", methods=["GET"])
 @login_required
 def get_all_passerelles():
     """
-    Get all passerelles.
+    Obtient toutes les passerelles de la base de données.
     """
-    return jsonify(database.get_all_passerelles())
+    passerelles = database.get_all_passerelles()
+    return jsonify(passerelles)
 
-@database_bp.route("/get_passerelle_by_id/<int:id>", methods=["GET"])
+
+@database_bp.route("/database/passerelle/<int:passerelle_id>", methods=["GET"])
 @login_required
-def get_passerelle_by_id(id):
-    result = database.get_passerelle_by_id(id)
-    if not result:
-        return jsonify({}), 404  # Ou retournez une réponse appropriée si l'ID n'est pas trouvé
-    
-    
-    print("result get_passerelle_by_id : ", result)
-    
-    return result
+def get_passerelle_by_id(passerelle_id):
+    """
+    Obtient une passerelle par son ID.
+    """
+    passerelle = database.get_passerelle_by_id(passerelle_id)
+    return jsonify(passerelle)
 
 
-@database_bp.route("/add_passerelle", methods=["PUT"])
+@database_bp.route("/database/passerelle", methods=["POST"])
 @login_required
 def add_passerelle():
+    """
+    Ajoute une passerelle à la base de données.
+    """
+    # obtenir les données de la requête (soit en JSON, soit en form-data)
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form
 
-    data = request.get_json()
-    database.add_passerelle(data["lib_passerelle"], data["id_logiciel"], data["id_logiciel_1"])
-    return "Passerelle ajoutée avec succès", 201
+    # ajouter la passerelle
+    result = database.add_passerelle(data["lib_passerelle"])
+    return jsonify(result)
 
 
-
-
-@database_bp.route("/delete_passerelle/<int:id>", methods=["DELETE"])
+@database_bp.route("/database/passerelle/<int:passerelle_id>", methods=["DELETE"])
 @login_required
-def delete_passerelle(id):
+def delete_passerelle(passerelle_id):
     """
-    Delete passerelle.
+    Supprime une passerelle de la base de données.
     """
-    database.delete_passerelle(id)
-    return "Passerelle supprimée avec succès", 200
+    result = database.delete_passerelle(passerelle_id)
+    return jsonify(result)
 
 
 
+###################################################################################################
+#                                        CONNECTEURS                                              #
+###################################################################################################
 
+#### CONNECTEUR SOURCE ####
 
-################################################################################################################################
-#                                                     EBP CLIENT                                                              #
-################################################################################################################################
-
-
-@database_bp.route("/get_all_ebp_clients", methods=["GET"])
+@database_bp.route("/database/connecteur_source", methods=["GET"])
 @login_required
-def get_all_ebp_clients():
+def get_all_connecteurs_source():
     """
-    Get all ebp clients.
+    Obtient tous les connecteurs source de la base de données.
     """
-    return jsonify(database.get_all_ebp_clients())
+    connecteurs_source = database.get_all_connecteurs_source()
+    return jsonify(connecteurs_source)
 
-@database_bp.route("/get_ebp_client_by_id/<int:id_logiciel>/<int:id_client>/<int:id_logiciel_client>", methods=["GET"])
+
+
+@database_bp.route("/database/connecteur_source", methods=["POST"])
 @login_required
-def get_ebp_client_by_id(id_logiciel, id_client, id_logiciel_client):
+def add_connecteur_source():
     """
-    Get ebp client by id.
+    Ajoute un connecteur source à la base de données.
     """
-    return jsonify(database.get_ebp_client_by_id(id_logiciel, id_client, id_logiciel_client))
+    # obtenir les données de la requête (soit en JSON, soit en form-data)
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form
 
+    # ajouter le connecteur source
+    # add_connecteur_source(passerelle_id, logiciel_id):
+    result = database.add_connecteur_source(data["id_passerelle"], data["id_logiciel"])
+    return jsonify(result)
 
-@database_bp.route("/add_ebp_client", methods=["PUT"])
+@database_bp.route("/database/connecteur_source/<int:connecteur_source_id>", methods=["GET"])
 @login_required
-def add_ebp_client():
+def get_connecteur_source_by_id(connecteur_source_id):
     """
-    Add ebp client.
+    Obtient un connecteur source par son ID.
     """
-    database.add_ebp_client(request.args.get("id_client"), request.args.get("id_logiciel"), request.args.get("id_logiciel_client"))
-    return "Client EBP ajouté avec succès", 201
+    connecteur_source = database.get_connecteur_source_by_id(connecteur_source_id)
+    return jsonify(connecteur_source)
 
-@database_bp.route("/delete_ebp_client", methods=["DELETE"])
+
+@database_bp.route("/database/connecteur_source/<int:connecteur_source_id>", methods=["DELETE"])
 @login_required
-def delete_ebp_client():
+def delete_connecteur_source(connecteur_source_id):
     """
-    Delete ebp client.
+    Supprime un connecteur source de la base de données.
     """
-    database.delete_ebp_client(request.args.get("id"))
-    return redirect("/get_all_ebp_clients")
+    result = database.delete_connecteur_source(connecteur_source_id)
+    return jsonify(result)
 
 
 
-################################################################################################################################
-#                                                     ZEENDOC CLIENT                                                          #
-################################################################################################################################
+#### CONNECTEUR DESTINATION ####
 
 
-@database_bp.route("/get_all_zeendoc_clients", methods=["GET"])
+@database_bp.route("/database/connecteur_destination", methods=["GET"])
 @login_required
-def get_all_zeendoc_clients():
+def get_all_connecteurs_destination():
     """
-    Get all zeendoc clients.
+    Obtient tous les connecteurs destination de la base de données.
     """
-    return jsonify(database.get_all_zeendoc_clients())
+    connecteurs_destination = database.get_all_connecteurs_destination()
+    return jsonify(connecteurs_destination)
 
-@database_bp.route("/get_zeendoc_client_by_id", methods=["GET"])
+
+
+@database_bp.route("/database/connecteur_destination", methods=["POST"])
 @login_required
-def get_zeendoc_client_by_id():
+def add_connecteur_destination():
     """
-    Get zeendoc client by id.
+    Ajoute un connecteur destination à la base de données.
     """
-    return jsonify(database.get_zeendoc_client_by_id(request.args.get("id")))
+    # obtenir les données de la requête (soit en JSON, soit en form-data)
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form
 
+    # ajouter le connecteur destination
+    result = database.add_connecteur_destination(data["id_passerelle"], data["id_logiciel"])
+    return jsonify(result)
 
-################################################################################################################################
-#                                                     CLIENT PASSERELLE                                                        #
-################################################################################################################################
-
-
-@database_bp.route("/get_all_client_passerelles", methods=["GET"])
+@database_bp.route("/database/connecteur_destination/<int:connecteur_destination_id>", methods=["GET"])
 @login_required
-def get_all_client_passerelles():
+def get_connecteur_destination_by_id(connecteur_destination_id):
     """
-    Get all client passerelles.
+    Obtient un connecteur destination par son ID.
     """
-    return jsonify(database.get_all_client_passerelles())
+    connecteur_destination = database.get_connecteur_destination_by_id(connecteur_destination_id)
+    return jsonify(connecteur_destination)
 
-@database_bp.route("/get_client_passerelle_by_id", methods=["GET"])
+@database_bp.route("/database/connecteur_destination/<int:connecteur_destination_id>", methods=["DELETE"])
 @login_required
-def get_client_passerelle_by_id():
+def delete_connecteur_destination(connecteur_destination_id):
     """
-    Get client passerelle by id.
+    Supprime un connecteur destination de la base de données.
     """
-    return jsonify(database.get_client_passerelle_by_id(request.args.get("id")))
+    result = database.delete_connecteur_destination(connecteur_destination_id)
+    return jsonify(result)
 
-@database_bp.route("/add_client_passerelle", methods=["PUT"])
+
+###################################################################################################
+#                                        CLIENT                                                   #
+###################################################################################################
+
+@database_bp.route("/database/client", methods=["GET"])
 @login_required
-def add_client_passerelle():
+def get_all_clients():
     """
-    Add client passerelle.
+    Obtient tous les clients de la base de données.
     """
-    database.add_client_passerelle(request.args.get("id_logiciel"), request.args.get("id_client"), request.args.get("id_logiciel_client"), request.args.get("id_passerelle"))
-    return redirect("/get_all_client_passerelles")
+    clients = database.get_all_clients()
+    return jsonify(clients)
 
-@database_bp.route("/delete_client_passerelle", methods=["DELETE"])
+
+@database_bp.route("/database/client/<int:client_id>", methods=["GET"])
 @login_required
-def delete_client_passerelle():
+def get_client_by_id(client_id):
     """
-    Delete client passerelle.
+    Obtient un client par son ID.
     """
-    database.delete_client_passerelle(request.args.get("id"))
-    return redirect("/get_all_client_passerelles")
+    client = database.get_client_by_id(client_id)
+    return jsonify(client)
 
 
-################################################################################################################################
-#                                                     LOGICIEL                                                                #
-################################################################################################################################
+@database_bp.route("/database/client", methods=["POST"])
+@login_required
+def add_client():
+    """
+    Ajoute un client à la base de données.
+    """
+    # obtenir les données de la requête (soit en JSON, soit en form-data)
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form
+
+    # ajouter le client
+    result = database.add_client(data["lib_client"])
+    return jsonify(result)
 
 
-@database_bp.route("/get_all_logiciels", methods=["GET"])
+@database_bp.route("/database/client/<int:client_id>", methods=["DELETE"])
+@login_required
+def delete_client(client_id):
+    """
+    Supprime un client de la base de données.
+    """
+    result = database.delete_client(client_id)
+    return jsonify(result)
+
+
+###################################################################################################
+#                                        LOGICIEL                                                 #
+###################################################################################################
+
+@database_bp.route("/database/logiciel", methods=["GET"])
 @login_required
 def get_all_logiciels():
     """
-    Get all logiciels.
+    Obtient tous les logiciels de la base de données.
     """
-    return jsonify(database.get_all_logiciels())
+    logiciels = database.get_all_logiciels()
+    return jsonify(logiciels)
 
-@database_bp.route("/get_logiciel_by_id", methods=["GET"])
+
+@database_bp.route("/database/logiciel/<int:logiciel_id>", methods=["GET"])
 @login_required
-def get_logiciel_by_id():
+def get_logiciel_by_id(logiciel_id):
     """
-    Get logiciel by id.
+    Obtient un logiciel par son ID.
     """
-    return jsonify(database.get_logiciel_by_id(request.args.get("id")))
+    logiciel = database.get_logiciel_by_id(logiciel_id)
+    return jsonify(logiciel)
 
-@database_bp.route("/add_logiciel", methods=["PUT"])
+
+@database_bp.route("/database/logiciel", methods=["POST"])
 @login_required
 def add_logiciel():
     """
-    Add logiciel.
+    Ajoute un logiciel à la base de données.
     """
-    database.add_logiciel(request.args.get("nom"))
-    return redirect("/get_all_logiciels")
+    # obtenir les données de la requête (soit en JSON, soit en form-data)
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form
 
-@database_bp.route("/delete_logiciel", methods=["DELETE"])
+    # ajouter le logiciel
+    result = database.add_logiciel(data["lib_logiciel"])
+    return jsonify(result)
+
+
+@database_bp.route("/database/logiciel/<int:logiciel_id>", methods=["DELETE"])
 @login_required
-def delete_logiciel():
+def delete_logiciel(logiciel_id):
     """
-    Delete logiciel.
+    Supprime un logiciel de la base de données.
     """
-    database.delete_logiciel(request.args.get("id"))
-    return redirect("/get_all_logiciels")
-
-
-
-################################################################################################################################
-#                                                LOGICIEL EBP CLIENT                                                           #
-################################################################################################################################
-
-
-@database_bp.route("/get_all_logiciel_ebp_clients", methods=["GET"])
-@login_required
-def get_all_logiciel_ebp_clients():
-    """
-    Get all logiciel ebp clients.
-    """
-    return jsonify(database.get_all_logiciel_ebp_clients())
-
-@database_bp.route("/get_logiciel_ebp_client_by_id", methods=["GET"])
-@login_required
-def get_logiciel_ebp_client_by_id():
-    """
-    Get logiciel ebp client by id.
-    """
-    return jsonify(database.get_logiciel_ebp_client_by_id(request.args.get("id")))
-
-@database_bp.route("/add_logiciel_ebp_client", methods=["PUT"])
-@login_required
-def add_logiciel_ebp_client():
-    """
-    Add logiciel ebp client.
-    """
-    database.add_logiciel_ebp_client(request.args.get("id_logiciel"), request.args.get("id_client"), request.args.get("id_logiciel_client"))
-    return redirect("/get_all_logiciel_ebp_clients")
-
-@database_bp.route("/delete_logiciel_ebp_client", methods=["DELETE"])
-@login_required
-def delete_logiciel_ebp_client():
-    """
-    Delete logiciel ebp client.
-    """
-    database.delete_logiciel_ebp_client(request.args.get("id"))
-    return redirect("/get_all_logiciel_ebp_clients")
-
-################################################################################################################################
-#                                             LOGICIEL ZEENDOC CLIENT                                                          #
-################################################################################################################################
-
-
-@database_bp.route("/get_all_logiciel_zeendoc_clients", methods=["GET"])
-@login_required
-def get_all_logiciel_zeendoc_clients():
-    """
-    Get all logiciel zeendoc clients.
-    """
-    return jsonify(database.get_all_logiciel_zeendoc_clients())
-
-@database_bp.route("/get_logiciel_zeendoc_client_by_id", methods=["GET"])
-@login_required
-def get_logiciel_zeendoc_client_by_id():
-    """
-    Get logiciel zeendoc client by id.
-    """
-    return jsonify(database.get_logiciel_zeendoc_client_by_id(request.args.get("id")))
-
-@database_bp.route("/add_logiciel_zeendoc_client", methods=["PUT"])
-@login_required
-def add_logiciel_zeendoc_client():
-    """
-    Add logiciel zeendoc client.
-    """
-    database.add_logiciel_zeendoc_client(request.args.get("id_logiciel"), request.args.get("id_client"), request.args.get("id_logiciel_client"))
-    return redirect("/get_all_logiciel_zeendoc_clients")
-
-@database_bp.route("/delete_logiciel_zeendoc_client", methods=["DELETE"])
-@login_required
-def delete_logiciel_zeendoc_client():
-    """
-    Delete logiciel zeendoc client.
-    """
-    database.delete_logiciel_zeendoc_client(request.args.get("id"))
-    return redirect("/get_all_logiciel_zeendoc_clients")
-
-################################################################################################################################
-#                                                     API EBP                                                                 #
-################################################################################################################################
-
-
-@database_bp.route("/get_all_api_ebp", methods=["GET"])
-@login_required
-def get_all_api_ebp():
-    """
-    Get all api ebp.
-    """
-    return jsonify(database.get_all_api_ebp())
-
-@database_bp.route("/get_api_ebp_by_id", methods=["GET"])
-@login_required
-def get_api_ebp_by_id():
-    """
-    Get api ebp by id.
-    """
-    return jsonify(database.get_api_ebp_by_id(request.args.get("id")))
-
-@database_bp.route("/add_api_ebp", methods=["PUT"])
-@login_required
-def add_api_ebp():
-    """
-    Add api ebp.
-    """
-    database.add_api_ebp(request.args.get("id_logiciel"), request.args.get("id_api"), request.args.get("client_id"), request.args.get("client_secret"), request.args.get("subscription_key"))
-    return redirect("/get_all_api_ebp")
-
-@database_bp.route("/delete_api_ebp", methods=["DELETE"])
-@login_required
-def delete_api_ebp():
-    """
-    Delete api ebp.
-    """
-    database.delete_api_ebp(request.args.get("id"))
-    return redirect("/get_all_api_ebp")
-
-
-
-################################################################################################################################
-#                                                     API ZEENDOC                                                             #
-################################################################################################################################
-
-
-@database_bp.route("/get_all_api_zeendoc", methods=["GET"])
-@login_required
-def get_all_api_zeendoc():
-    """
-    Get all api zeendoc.
-    """
-    return jsonify(database.get_all_api_zeendoc())
-
-@database_bp.route("/get_api_zeendoc_by_id", methods=["GET"])
-@login_required
-def get_api_zeendoc_by_id():
-    """
-    Get api zeendoc by id.
-    """
-    return jsonify(database.get_api_zeendoc_by_id(request.args.get("id")))
-
-@database_bp.route("/add_api_zeendoc", methods=["PUT"])
-@login_required
-def add_api_zeendoc():
-    """
-    Add api zeendoc.
-    """
-    database.add_api_zeendoc(request.args.get("id_logiciel"), request.args.get("id_api"), request.args.get("login"), request.args.get("password"), request.args.get("url_client"))
-    return redirect("/get_all_api_zeendoc")
-
-@database_bp.route("/delete_api_zeendoc", methods=["DELETE"])
-@login_required
-def delete_api_zeendoc():
-    """
-    Delete api zeendoc.
-    """
-    database.delete_api_zeendoc(request.args.get("id"))
-    return redirect("/get_all_api_zeendoc")
-
-
-
-################################################################################################################################
-#                                                     Requête plus complexe                                                    #
-################################################################################################################################
-
-
-@database_bp.route("/get_all_client_passerelles_by_id_client", methods=["GET"])
-@login_required
-def get_all_client_passerelles_by_id_client():
-    """
-    Get all client passerelles by id client.
-    """
-    return jsonify(database.get_all_client_passerelles_by_id_client(request.args.get("id_client")))
+    result = database.delete_logiciel(logiciel_id)
+    return jsonify(result)
 

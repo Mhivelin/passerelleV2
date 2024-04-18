@@ -1,7 +1,7 @@
 import json
 import sys
 import xml.etree.ElementTree as ET
-import database as db
+import app.models.database
 
 import requests
 

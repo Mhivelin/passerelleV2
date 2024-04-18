@@ -1,31 +1,46 @@
+"""
+Ce fichier contient les tests unitaires pour les opérations de la base de données.
+les premier test est ont des commentaire pour expliquer le principe de fonctionnement
+mais les autres non.
+
+"""
+
+
+
+
 import unittest
 from app import create_app
 from app.models import database
 
+
 class TestModels(unittest.TestCase):
     """
-    A test case class for testing the models in the database module.
+    CLasse de test pour les opérations de la base de données.
     """
 
     def setUp(self):
         """
-        Set up the application context and initialize the database before each test.
+        mettre en place le contexte de l'application avant chaque test.
         """
+        # Créer une instance de l'application
         self.app = create_app()
         self.app_context = self.app.app_context()
         self.app_context.push()
+
+        # Créer la base de données
         database.create_database()
 
     def tearDown(self):
         """
-        Tear down the application context after each test.
+        Nettoyer le contexte de l'application après chaque test.
         """
         self.app_context.pop()
 
 
     # def test_drop_table(self):
     #     """
-    #     Test the dropping of a table.
+    #     Test de la suppression de la table. (à ne pas exécuter si on veut conserver
+    #     les données)
     #     """
     #     database.drop_all_tables()
 
@@ -33,141 +48,123 @@ class TestModels(unittest.TestCase):
 
     def test_create_database(self):
         """
-        Test the creation of the database.
+        Test de la création de la base de données.
         """
+        # deja fait dans le setUp mais on le refait pour le test
         database.create_database()
         self.assertIsNotNone(database.get_all_passerelles())
 
     def test_passerelle_operations(self):
         """
-        Test adding, retrieving, and deleting passerelle records.
+        Test d'ajout, de récupération et de suppression des enregistrements de passerelle.
         """
-        database.add_passerelle("passerelle1", 1, 1)
+
+        # ajout d'une passerelle
+        database.add_passerelle("passerelle1")
+
+        # récupération de la passerelle
         passerelle = database.get_passerelle_by_id(1)
+
+        # vérification de l'existence de la passerelle
         self.assertIsNotNone(passerelle)
+
+        # suppression de la passerelle
         database.delete_passerelle(1)
+
+        # vérification de la suppression de la passerelle
         self.assertIsNone(database.get_passerelle_by_id(1))
-        database.drop_table("PASSERELLE")
 
-    def test_api_zeendoc_operations(self):
-        """
-        Test adding, retrieving, and deleting API Zeendoc records.
-        """
-        database.add_api_zeendoc(1, 1, "login", "password", "url_client")
-        self.assertIsNotNone(database.get_api_zeendoc_by_id(1, 1))
-        database.delete_api_zeendoc(1, 1)
-        self.assertIsNone(database.get_api_zeendoc_by_id(1, 1))
-        database.drop_table("API_ZEENDOC")
 
-    def test_api_ebp_operations(self):
-        """
-        Test adding, retrieving, and deleting API EBP records.
-        """
-        database.add_api_ebp(1, 1, "client_id", "client_secret", "subscription_key")
-        self.assertIsNotNone(database.get_api_ebp_by_id(1, 1))
-        database.delete_api_ebp(1, 1)
-        self.assertIsNone(database.get_api_ebp_by_id(1, 1))
-        database.drop_table("API_EBP")
-
-    def test_ebp_client_operations(self):
-        """
-        Test adding, retrieving, and deleting EBP client records.
-        """
-        # id_logiciel, id_client, id_logiciel_client, folder_id
-        database.add_ebp_client(1, 1, 1, 1)
-        self.assertIsNotNone(database.get_ebp_client_by_id(1, 1, 1))
-        database.delete_ebp_client(1, 1, 1)
-        self.assertIsNone(database.get_ebp_client_by_id(1, 1, 1))
-        database.drop_table("EBP_CLIENT")
-        
-    def test_zeendoc_client_operations(self):
-        """
-        Test adding, retrieving, and deleting Zeendoc client records.
-        """
-        # id_logiciel, id_client, id_logiciel_client, index_statut_paiement, index_ref_doc, classeur = None,
-        database.add_zeendoc_client(1, 1, 1, 1, 1)
-        self.assertIsNotNone(database.get_zeendoc_client_by_id(1, 1, 1))
-        database.delete_zeendoc_client(1, 1, 1)
-        self.assertIsNone(database.get_zeendoc_client_by_id(1, 1, 1))
-        database.drop_table("ZEENDOC_CLIENT")
-        
-        
-    def test_client_passerelles_operations(self):
-        """
-        Test adding, retrieving, and deleting client passerelle records.
-        """
-        # id_logiciel, id_client, id_logiciel_client, id_passerelle
-        database.add_client_passerelle(1, 1, 1, 1)
-        self.assertIsNotNone(database.get_client_passerelle_by_id(1, 1, 1, 1))
-        database.delete_client_passerelle(1, 1, 1, 1)
-        self.assertIsNone(database.get_client_passerelle_by_id(1, 1, 1, 1))
-        database.drop_table("CLIENT_PASSERELLE")
-        
     def test_logiciel_operations(self):
         """
-        Test adding, retrieving, and deleting logiciel records.
+        Test d'ajout, de récupération et de suppression des enregistrements de logiciel.
         """
         database.add_logiciel("logiciel1")
-        self.assertIsNotNone(database.get_logiciel_by_id(1))
+        logiciel = database.get_logiciel_by_id(1)
+        self.assertIsNotNone(logiciel)
         database.delete_logiciel(1)
         self.assertIsNone(database.get_logiciel_by_id(1))
-        database.drop_table("LOGICIEL")
-        
-        
+
+
+    def test_client_operations(self):
+        """
+        Test d'ajout, de récupération et de suppression des enregistrements de client.
+        """
+        database.add_client("client1")
+        client = database.get_client_by_id(1)
+        self.assertIsNotNone(client)
+        database.delete_client(1)
+        self.assertIsNone(database.get_client_by_id(1))
+
+
+    def test_connecteur_operations(self):
+        """
+        Test d'ajout, de récupération et de suppression des enregistrements de connecteur
+        (source et destination)
+        """
+        # ajout d'un logiciel et d'une passerelle pour tester les connecteurs
+        database.add_logiciel("logiciel1")
+        database.add_passerelle("passerelle1")
+
+        database.add_connecteur_source(1, 1)
+        connecteur_source = database.get_connecteur_source_by_id(1)
+        self.assertIsNotNone(connecteur_source)
+        database.delete_connecteur_source(1)
+        self.assertIsNone(database.get_connecteur_source_by_id(1))
+
+        database.add_connecteur_destination(1, 1)
+        connecteur_destination = database.get_connecteur_destination_by_id(1)
+        self.assertIsNotNone(connecteur_destination)
+        database.delete_connecteur_destination(1)
+        self.assertIsNone(database.get_connecteur_destination_by_id(1))
+
+        database.delete_logiciel(1)
+        database.delete_passerelle(1)
+
+
+
+    def test_logiciel_zendoc_client_operations(self):
+        """
+        Test d'ajout, de récupération et de suppression des enregistrements de logiciel
+        zeendoc client.
+        """
+        database.add_logiciel("logiciel1")
+        database.add_client("client1")
+        database.add_logiciel_zeendoc_client(1, 1, 1)
+        logiciel_zeendoc_client = database.get_logiciel_zeendoc_client_by_id(1)
+        self.assertIsNotNone(logiciel_zeendoc_client)
+        database.delete_logiciel_zeendoc_client(1)
+        self.assertIsNone(database.get_logiciel_zeendoc_client_by_id(1))
+        database.delete_logiciel(1)
+        database.delete_client(1)
+
+
     def test_logiciel_ebp_client_operations(self):
         """
-        Test adding, retrieving, and deleting logiciel ebp client records.
+        Test d'ajout, de récupération et de suppression des enregistrements de logiciel ebp client.
         """
-        # id_logiciel, id_client, id_logiciel_client
+        database.add_logiciel("logiciel1")
+        database.add_client("client1")
         database.add_logiciel_ebp_client(1, 1, 1)
-        self.assertIsNotNone(database.get_logiciel_ebp_client_by_id(1, 1, 1))
-        database.delete_logiciel_ebp_client(1, 1, 1)
-        self.assertIsNone(database.get_logiciel_ebp_client_by_id(1, 1, 1))
-        database.drop_table("LOGICIEL_EBP_CLIENT")
-        
-    def test_logiciel_zeendoc_client_operations(self):
-        """
-        Test adding, retrieving, and deleting logiciel zeendoc client records.
-        """
-        # id_logiciel, id_client, id_logiciel_client
-        database.add_logiciel_zeendoc_client(1, 1, 1)
-        self.assertIsNotNone(database.get_logiciel_zeendoc_client_by_id(1, 1, 1))
-        database.delete_logiciel_zeendoc_client(1, 1, 1)
-        self.assertIsNone(database.get_logiciel_zeendoc_client_by_id(1, 1, 1))
-        database.drop_table("LOGICIEL_ZEENDOC_CLIENT")
-        
-    def test_api_ebp_operations(self):
-        """
-        Test adding, retrieving, and deleting logiciel api ebp records.
-        """
-        # id_logiciel, id_api, client_id, client_secret, subscription_key, token=None
-        database.add_api_ebp(1, 1, "client_id", "client_secret", "subscription_key")
-        self.assertIsNotNone(database.get_api_ebp_by_id(1, 1))
-        database.delete_api_ebp(1, 1)
-        self.assertIsNone(database.get_api_ebp_by_id(1, 1))
-        database.drop_table("LOGICIEL_API_EBP")
-        
-    def test_api_zeendoc_operations(self):
-        """
-        Test adding, retrieving, and deleting logiciel api zeendoc records.
-        """
-        # id_logiciel, id_api, login, password, url_client, token=None
-        database.add_api_zeendoc(1, 1, "login", "password", "url_client")
-        self.assertIsNotNone(database.get_api_zeendoc_by_id(1, 1))
-        database.delete_api_zeendoc(1, 1)
-        self.assertIsNone(database.get_api_zeendoc_by_id(1, 1))
-        database.drop_table("LOGICIEL_API_ZEENDOC")
-
-    def test_get_all_client_passerelles_by_id_client(self):
-        """
-        Test getting all client passerelles by id client.
-        """
-        database.add_client_passerelle(1, 1, 1, 1)
-        self.assertIsNotNone(database.get_all_client_passerelles_by_id_client(1))
-        database.drop_table("CLIENT_PASSERELLE")
+        logiciel_ebp_client = database.get_logiciel_ebp_client_by_id(1)
+        self.assertIsNotNone(logiciel_ebp_client)
+        database.delete_logiciel_ebp_client(1)
+        self.assertIsNone(database.get_logiciel_ebp_client_by_id(1))
+        database.delete_logiciel(1)
+        database.delete_client(1)
 
 
+    def test_client_passerelle_operations(self):
+        """
+        Test d'ajout, de récupération et de suppression des enregistrements de client passerelle.
+        """
+        database.add_client("client1")
+        database.add_passerelle("passerelle1")
+        database.add_client_passerelle(1, 1)
+        client_passerelle = database.get_client_passerelle_by_id(1, 1)
+        self.assertIsNotNone(client_passerelle)
+        database.delete_client_passerelle(1, 1)
+        self.assertIsNone(database.get_client_passerelle_by_id(1, 1))
+        database.delete_client(1)
+        database.delete_passerelle(1)
 
-
-    if __name__ == "__main__":
-        unittest.main()
