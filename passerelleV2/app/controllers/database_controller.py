@@ -1,5 +1,5 @@
 """
-
+Ce module contient les routes pour les différentes entités de la base de données.
 """
 
 
@@ -150,7 +150,9 @@ def add_connecteur_destination():
     result = database.add_connecteur_destination(data["id_passerelle"], data["id_logiciel"])
     return jsonify(result)
 
-@database_bp.route("/database/connecteur_destination/<int:connecteur_destination_id>", methods=["GET"])
+@database_bp.route(
+    "/database/connecteur_destination/<int:connecteur_destination_id>",
+    methods=["GET"])
 @login_required
 def get_connecteur_destination_by_id(connecteur_destination_id):
     """
@@ -159,7 +161,9 @@ def get_connecteur_destination_by_id(connecteur_destination_id):
     connecteur_destination = database.get_connecteur_destination_by_id(connecteur_destination_id)
     return jsonify(connecteur_destination)
 
-@database_bp.route("/database/connecteur_destination/<int:connecteur_destination_id>", methods=["DELETE"])
+@database_bp.route(
+    "/database/connecteur_destination/<int:connecteur_destination_id>",
+    methods=["DELETE"])
 @login_required
 def delete_connecteur_destination(connecteur_destination_id):
     """
@@ -269,4 +273,161 @@ def delete_logiciel(logiciel_id):
     """
     result = database.delete_logiciel(logiciel_id)
     return jsonify(result)
+
+
+###################################################################################################
+#                                   LOGICIEL CLIENT                                              #
+###################################################################################################
+
+@database_bp.route("/database/logiciel_client", methods=["GET"])
+@login_required
+def get_all_logiciels_client():
+    """
+    Obtient tous les logiciels client de la base de données.
+    """
+    logiciels_client = database.get_all_logiciels_client()
+    return jsonify(logiciels_client)
+
+
+@database_bp.route("/database/logiciel_client/<int:logiciel_client_id>", methods=["GET"])
+@login_required
+def get_logiciel_client_by_id(logiciel_client_id):
+    """
+    Obtient un logiciel client par son ID.
+    """
+    logiciel_client = database.get_logiciel_client_by_id(logiciel_client_id)
+    return jsonify(logiciel_client)
+
+
+@database_bp.route("/database/logiciel_client", methods=["POST"])
+@login_required
+def add_logiciel_client():
+    """
+    Ajoute un logiciel client à la base de données.
+    """
+    # obtenir les données de la requête (soit en JSON, soit en form-data)
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form
+
+    # ajouter le logiciel client
+    result = database.add_logiciel_client(data["id_logiciel"], data["id_client"])
+    return jsonify(result)
+
+
+
+
+
+
+
+
+
+
+
+###################################################################################################
+#                                   LOGICIEL EBP CLIENT                                           #
+###################################################################################################
+
+@database_bp.route("/database/logiciel_ebp_client", methods=["GET"])
+@login_required
+def get_all_logiciels_ebp_client():
+    """
+    Obtient tous les logiciels ebp client de la base de données.
+    """
+    logiciels_ebp_client = database.get_all_logiciels_ebp_client()
+    return jsonify(logiciels_ebp_client)
+
+
+@database_bp.route("/database/logiciel_ebp_client/<int:logiciel_ebp_client_id>", methods=["GET"])
+@login_required
+def get_logiciel_ebp_client_by_id(logiciel_ebp_client_id):
+    """
+    Obtient un logiciel ebp client par son ID.
+    """
+    logiciel_ebp_client = database.get_logiciel_ebp_client_by_id(logiciel_ebp_client_id)
+    return jsonify(logiciel_ebp_client)
+
+
+@database_bp.route("/database/logiciel_ebp_client", methods=["POST"])
+@login_required
+def add_logiciel_ebp_client():
+    """
+    Ajoute un logiciel ebp client à la base de données.
+    """
+    # obtenir les données de la requête (soit en JSON, soit en form-data)
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form
+
+    # ajouter le logiciel ebp client
+    result = database.add_logiciel_ebp_client(data["id_logiciel"], data["id_client"])
+    return jsonify(result)
+
+
+@database_bp.route("/database/logiciel_ebp_client/<int:logiciel_ebp_client_id>", methods=["DELETE"])
+@login_required
+def delete_logiciel_ebp_client(logiciel_ebp_client_id):
+    """
+    Supprime un logiciel ebp client de la base de données.
+    """
+    result = database.delete_logiciel_ebp_client(logiciel_ebp_client_id)
+    return jsonify(result)
+
+
+###################################################################################################
+#                                   LOGICIEL ZEENDOC CLIENT                                       #
+###################################################################################################
+
+@database_bp.route("/database/logiciel_zeendoc_client", methods=["GET"])
+@login_required
+def get_all_logiciels_zeendoc_client():
+    """
+    Obtient tous les logiciels zeendoc client de la base de données.
+    """
+    logiciels_zeendoc_client = database.get_all_logiciels_zeendoc_client()
+    return jsonify(logiciels_zeendoc_client)
+
+
+@database_bp.route(
+    "/database/logiciel_zeendoc_client/<int:logiciel_zeendoc_client_id>",
+    methods=["GET"])
+@login_required
+def get_logiciel_zeendoc_client_by_id(logiciel_zeendoc_client_id):
+    """
+    Obtient un logiciel zeendoc client par son ID.
+    """
+    logiciel_zeendoc_client = database.get_logiciel_zeendoc_client_by_id(logiciel_zeendoc_client_id)
+    return jsonify(logiciel_zeendoc_client)
+
+
+@database_bp.route("/database/logiciel_zeendoc_client", methods=["POST"])
+@login_required
+def add_logiciel_zeendoc_client():
+    """
+    Ajoute un logiciel zeendoc client à la base de données.
+    """
+    # obtenir les données de la requête (soit en JSON, soit en form-data)
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form
+
+    # ajouter le logiciel zeendoc client
+    result = database.add_logiciel_zeendoc_client(data["id_logiciel"], data["id_client"])
+    return jsonify(result)
+
+
+@database_bp.route(
+    "/database/logiciel_zeendoc_client/<int:logiciel_zeendoc_client_id>",
+    methods=["DELETE"])
+@login_required
+def delete_logiciel_zeendoc_client(logiciel_zeendoc_client_id):
+    """
+    Supprime un logiciel zeendoc client de la base de données.
+    """
+    result = database.delete_logiciel_zeendoc_client(logiciel_zeendoc_client_id)
+    return jsonify(result)
+
 

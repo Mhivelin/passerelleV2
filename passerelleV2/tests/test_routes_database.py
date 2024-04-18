@@ -362,3 +362,50 @@ class TestRoutes(TestCase):
         self.assertIsNone(logiciel)
 
 
+    ###### LOGICIEL EBP CLIENT ######
+
+    def test_passerelle_operations(self):
+        """
+        Test d'ajout, de récupération et de suppression des enregistrements de passerelle.
+        """
+
+        # ajout d'une passerelle
+        database.add_passerelle("passerelle1")
+
+        # récupération de la passerelle
+        passerelle = database.get_passerelle_by_id(1)
+
+        # vérification de l'existence de la passerelle
+        self.assertIsNotNone(passerelle)
+
+        # suppression de la passerelle
+        database.delete_passerelle(1)
+
+        # vérification de la suppression de la passerelle
+        self.assertIsNone(database.get_passerelle_by_id(1))
+
+
+    ###### LOGICIEL ZEENDOC CLIENT ######
+
+    def test_logiciel_operations(self):
+        """
+        Test d'ajout, de récupération et de suppression des enregistrements de logiciel.
+        """
+        database.add_logiciel("logiciel1")
+        logiciel = database.get_logiciel_by_id(1)
+        self.assertIsNotNone(logiciel)
+        database.delete_logiciel(1)
+        self.assertIsNone(database.get_logiciel_by_id(1))
+
+
+    ###### CLIENT ######
+
+    def test_client_operations(self):
+        """
+        Test d'ajout, de récupération et de suppression des enregistrements de client.
+        """
+        database.add_client("client1")
+        client = database.get_client_by_id(1)
+        self.assertIsNotNone(client)
+        database.delete_client(1)
+        self.assertIsNone(database.get_client_by_id(1))

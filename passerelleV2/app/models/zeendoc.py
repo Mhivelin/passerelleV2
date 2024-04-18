@@ -1,7 +1,7 @@
 import json
 import sys
 import xml.etree.ElementTree as ET
-import app.models.database
+import app.models.database as db
 
 import requests
 
@@ -11,11 +11,13 @@ import requests
 class Zeendoc:
 
     def __init__(self, id) -> None:
-        
-        infos = db.get_api_zeendoc_by_id(id)
-        
-        
-        
+
+        infos = db.get_logiciel_zeendoc_client_by_id(id)
+
+        print(infos)
+
+
+
 
         # res = self.BdGetClientZeendoc(id)
 

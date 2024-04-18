@@ -455,6 +455,14 @@ def delete_connecteur_destination(passerelle_id):
     """Supprime un connecteur de destination pour une passerelle spécifique."""
     return delete_record("Connecte_Logiciel_Destination", "IdPasserelle = ?", (passerelle_id, ))
 
+def get_all_connecteurs_source():
+    """Récupère tous les connecteurs source de la base de données."""
+    return get_all_records("Connecte_Logiciel_Source")
+
+def get_all_connecteurs_destination():
+    """Récupère tous les connecteurs de destination de la base de données."""
+    return get_all_records("Connecte_Logiciel_Destination")
+
 def get_connecteur_source_by_id(passerelle_id):
     """Récupère un connecteur source pour une passerelle spécifique."""
     query = "SELECT * FROM Connecte_Logiciel_Source WHERE IdPasserelle = ?"
@@ -562,11 +570,54 @@ def delete_logiciel(id_logiciel):
 
 
 #############################################################################################
+#                                  LOGICIEL CLIENT                                          #
+#############################################################################################
+
+def get_all_logiciel_clients():
+    """Récupère tous les clients de logiciel de la base de données."""
+    return get_all_records("LOGICIEL_CLIENT")
+
+
+def get_logiciel_client_by_id(id_logiciel_client):
+    """Récupère un client de logiciel spécifique en fonction de l'identifiant du client de logiciel."""
+    query = "SELECT * FROM LOGICIEL_CLIENT WHERE idLogicielClient = ?"
+    return execute_query_single(query, (id_logiciel_client, ))
+
+def add_logiciel_client(id_logiciel, id_client, id_logiciel_client):
+    """Ajoute un client de logiciel avec les informations spécifiées."""
+    return add_record(
+        "LOGICIEL_CLIENT",
+        ["IdLogiciel", "idLogicielClient", "idClient"],
+        [id_logiciel, id_client, id_logiciel_client],
+    )
+
+def delete_logiciel_client(id_logiciel_client):
+    """Supprime un client de logiciel spécifique en fonction de l'identifiant du client de logiciel."""
+    return delete_record("LOGICIEL_CLIENT", "idLogicielClient = ?", (id_logiciel_client, ))
+
+def get_logiciel_client_by_logiciel(logiciel_id):
+    """Récupère tous les clients associés à un logiciel spécifique."""
+    query = "SELECT * FROM LOGICIEL_CLIENT WHERE IdLogiciel = ?"
+    return execute_query(query, (logiciel_id, ))
+
+def get_logiciel_client_by_client(client_id):
+    """Récupère tous les clients associés à un client spécifique."""
+    query = "SELECT * FROM LOGICIEL_CLIENT WHERE idClient = ?"
+    return execute_query(query, (client_id, ))
+
+def get_logiciel_client_by_logiciel_and_client(logiciel_id, client_id):
+    """Récupère un client de logiciel spécifique en fonction de l'identifiant du logiciel et de l'identifiant du client."""
+    query = "SELECT * FROM LOGICIEL_CLIENT WHERE IdLogiciel = ? AND idClient = ?"
+    return execute_query_single(query, (logiciel_id, client_id))
+
+
+
+#############################################################################################
 #                                  LOGICIEL EBP CLIENT                                      #
 #############################################################################################
 
 
-def get_all_logiciel_ebp_clients():
+def get_all_logiciels_ebp_client():
     """Récupère tous les clients de logiciel EBP de la base de données."""
     return get_all_records("LOGICIEL_CLIENT")
 
@@ -585,7 +636,6 @@ def add_logiciel_ebp_client(id_logiciel, id_client, id_logiciel_client):
         ["IdLogiciel", "idLogicielClient", "idClient"],
         [id_logiciel, id_client, id_logiciel_client],
     )
-
 
 def delete_logiciel_ebp_client(id_logiciel_client):
     """Supprime un client de logiciel EBP spécifique en fonction de l'identifiant du
@@ -632,7 +682,7 @@ def delete_logiciel_zeendoc_client(id_logiciel_client):
 
 
 #######################################################################################
-#                                  Requête plus complexe                              #
+#                               Requête plus complexe                                 #
 #######################################################################################
 
 
