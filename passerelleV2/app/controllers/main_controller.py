@@ -18,6 +18,12 @@ def home():
 
     clients = database.get_all_clients()
 
+    for client in clients:
+        # client["passerelles"] = database.get_passerelle_by_client(client["idClient"])
+        client["passerellesClient"] = database.get_passerelle_client_by_client(client["idClient"])
+
+
+
     return render_template("clients.html", clients=clients)
 
 

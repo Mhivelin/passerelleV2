@@ -14,23 +14,18 @@ class Zeendoc:
 
         infos = db.get_logiciel_zeendoc_client_by_id(id)
 
-        print(infos)
+        self.idLogicielClient = infos["idLogicielClient"]
+        self.idLogiciel = infos["IdLogiciel"]
+        self.idClient = infos["idClient"]
+        self.indexPaiement = infos["Index_Statut_Paiement"]
+        self.indexREF = infos["Index_Ref_Doc"]
+        self.classeur = infos["Classeur"]
+        self.log = infos["Login"]
+        self.cpassword = infos["Password"]
+        self.urlclient = infos["UrlClient"]
 
 
 
-
-        # res = self.BdGetClientZeendoc(id)
-
-        # self.log = res["ZEENDOC_LOGIN"]
-        # self.cpassword = res["ZEENDOC_CPASSWORD"]
-        # self.urlclient = res["ZEENDOC_URLCLIENT"]
-        # self.classeur = res["ZEENDOC_CLASSEUR"]
-
-        # self.id = id
-
-        # self.co = self.login()
-
-        # self.right = self.getright()
 
     # def BdGetClientZeendoc(self, id):
     #     try:
@@ -77,7 +72,7 @@ class Zeendoc:
 
         return response.text
 
-    def getright(self):
+    def get_rights(self):
         """fonction qui permet de récupérer les droits de l'utilisateur"""
 
         url = "https://armoires.zeendoc.com/" + self.urlclient + "/ws/3_0/Zeendoc.php"
@@ -120,7 +115,8 @@ class Zeendoc:
     def get_classeurs(self):
         """fonction qui permet de récupérer les nom et id des classeurs de l'utilisateur"""
 
-        right = self.right["Collections"]
+        right = self.get_rights()["Collections"]
+
 
         collections = []
 
@@ -131,7 +127,6 @@ class Zeendoc:
                 "Label": collection["Label"]
             })
 
-        print(collections)
 
         return collections
 
@@ -157,28 +152,7 @@ class Zeendoc:
 
         return None
 
-    # def setClasseur(self, classeur):
-    #     '''fonction qui permet de mettre à jour le classeur
-    #     classeur: nom du classeur
-    #     '''
-    #     print('classeur')
-    #     print(classeur)
 
-    #     self.classeur = classeur
-    #     # enregistrer le classeur dans la base de données
-    #     conn = get_db_connection()
-
-    #     try:
-    #         conn.execute("UPDATE CLIENT_ZEENDOC SET ZEENDOC_CLASSEUR = ? WHERE id = ?", (classeur, self.id))
-    #         conn.commit()
-    #         # afficher le résultat de la requête
-    #         print('test')
-    #     except:
-    #         print('erreur lors de la mise à jour du classeur')
-    #         # afficher l'erreur rencontrée
-    #         print(sys.exc_info()[0])
-    #     finally:
-    #         conn.close()
 
     def searchDocBycustom(self,
                           index_id,

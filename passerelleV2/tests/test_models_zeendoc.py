@@ -39,21 +39,8 @@ class TestModels(unittest.TestCase):
             db.create_all()
             self.client.post('/login', data={"username": "admin", "password": "admin"})
 
-    def tearDown(self):
-        """
-        Nettoyer le contexte de l'application après chaque test.
-        """
-        with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
 
-    def test_zeendoc(self):
-        """
-        Teste la récupération et la connexion d'un client Zeendoc.
-        Vérifie que les méthodes de récupération des droits et des classeurs fonctionnent.
-        """
-
-
+        # Creation d'un client et d'un logiciel pour les tests
         # on crée un client
         database.add_client("test")
 
@@ -62,26 +49,74 @@ class TestModels(unittest.TestCase):
 
         # on lui crée LOGICIEL ZEENDOC CLIENT
 
+        #id_logiciel, id_client, id_logiciel_client, login, password, url_client
+        database.add_logiciel_zeendoc_client(1, 1, "tests_webservices@zeendoc.com", "tests01", "tests_webservices")
+
+        # initialisation de la classe zeendoc
+        self.zeendoc = Zeendoc(1)
 
 
+    def tearDown(self):
+        """
+        Nettoyer le contexte de l'application après chaque test.
+        """
+        with self.app.app_context():
+            db.session.remove()
+            db.drop_all()
 
-        zeendoc = Zeendoc(1)
-        # zeendoc.BdGetClientZeendoc(1)
-        # zeendoc.login()
+        # on efface les données
+        database.delete_client(1)
+        database.delete_logiciel(1)
+        database.delete_logiciel_client(1)
+        database.delete_logiciel_zeendoc_client(1)
 
-        # self.assertIsNotNone(zeendoc.getright())
-        # self.assertIsNotNone(zeendoc)
 
-    # def test_get_classeurs(self):
+    # def test_drop_table(self):
     #     """
-    #     Teste la récupération des classeurs depuis Zeendoc.
-    #     Assure que l'utilisateur Zeendoc peut accéder à ses classeurs.
+    #     Test de la suppression de la table. (à ne pas exécuter si on veut conserver
+    #     les données)
     #     """
-    #     zeendoc = Zeendoc(1)
-    #     zeendoc.BdGetClientZeendoc(1)
-    #     zeendoc.login()
+    #     database.drop_all_tables()
 
-    #     self.assertIsNotNone(zeendoc.get_classeurs())
+
+
+
+
+
+
+    def test_zeendoc_login(self):
+        """
+        Teste la connexion à l'API Zeendoc.
+        """
+
+        co = self.zeendoc.login()
+
+        self.assertIn('Result":0,"Cookie_Duration":"38880s","Error_Msg":""', co)
+
+
+
+
+    def test_zeendoc_get_rights(self):
+        """
+        Teste la récupération des droits d'un utilisateur Zeendoc.
+        """
+
+        rights = self.zeendoc.get_rights()
+
+        self.assertEqual(rights['Result'], 0)
+
+
+
+    def test_zeendoc_get_classeurs(self):
+        """
+        Teste la récupération des classeurs d'un utilisateur Zeendoc.
+        """
+
+        classeurs = self.zeendoc.get_classeurs()
+
+        self.assertIsNotNone(classeurs)
+
+
 
 if __name__ == "__main__":
     unittest.main()

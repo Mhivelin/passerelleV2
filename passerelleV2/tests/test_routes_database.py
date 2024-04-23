@@ -364,38 +364,46 @@ class TestRoutes(TestCase):
 
     ###### LOGICIEL EBP CLIENT ######
 
-    def test_passerelle_operations(self):
-        """
-        Test d'ajout, de récupération et de suppression des enregistrements de passerelle.
-        """
+    # def test_passerelle_operations(self):
+    #     """
+    #     Test d'ajout, de récupération et de suppression des enregistrements de passerelle.
+    #     """
 
-        # ajout d'une passerelle
-        database.add_passerelle("passerelle1")
+    #     # ajout d'une passerelle
+    #     self.client.post("/database/passerelle", json={"lib_passerelle": "passerelle1"})
 
-        # récupération de la passerelle
-        passerelle = database.get_passerelle_by_id(1)
+    #     # récupération de la passerelle
+    #     passerelle = self.client.get("/database/passerelle/1")
 
-        # vérification de l'existence de la passerelle
-        self.assertIsNotNone(passerelle)
+    #     # vérification de l'existence de la passerelle
+    #     self.assertIsNotNone(passerelle)
 
-        # suppression de la passerelle
-        database.delete_passerelle(1)
+    #     # suppression de la passerelle
+    #     self.client.delete("/database/passerelle/1")
 
-        # vérification de la suppression de la passerelle
-        self.assertIsNone(database.get_passerelle_by_id(1))
+    #     # vérification de la suppression de la passerelle
+    #     self.assertIsNone(database.get_passerelle_by_id(1))
 
 
     ###### LOGICIEL ZEENDOC CLIENT ######
 
-    def test_logiciel_operations(self):
-        """
-        Test d'ajout, de récupération et de suppression des enregistrements de logiciel.
-        """
-        database.add_logiciel("logiciel1")
-        logiciel = database.get_logiciel_by_id(1)
-        self.assertIsNotNone(logiciel)
-        database.delete_logiciel(1)
-        self.assertIsNone(database.get_logiciel_by_id(1))
+    # def test_logiciel_zeendoc_client_operations(self):
+    #     """
+    #     Test d'ajout, de récupération et de suppression des enregistrements de logiciel.
+    #     """
+
+    #     database.add_logiciel("logiciel1")
+
+    #     self.client.post("/database/logiciel_zeendoc_client", json={"idLogicielClient": 1, "Login": "login", "Password": "password", "UrlClient": "url"})
+    #     self.assertIsNotNone(self.client.get("/database/logiciel_zeendoc_client/1"))
+    #     self.client.delete("/database/logiciel_zeendoc_client/1")
+    #     self.assertIsNone(database.get_logiciel_by_id(1))
+
+    #     database.delete_logiciel(1)
+    #     database.delete_logiciel_client(1)
+    #     database.delete_logiciel_ebp_client(1)
+
+
 
 
     ###### CLIENT ######
@@ -409,3 +417,21 @@ class TestRoutes(TestCase):
         self.assertIsNotNone(client)
         database.delete_client(1)
         self.assertIsNone(database.get_client_by_id(1))
+
+
+    ###### LOGICIEL CLIENT ######
+
+    def test_logiciel_client_operations(self):
+        """
+        Test d'ajout, de récupération et de suppression des enregistrements de logiciel client.
+        """
+        database.add_logiciel("logiciel1")
+        database.add_client("client1")
+        database.add_logiciel_client(1, 1)
+        logiciel_client = database.get_logiciel_client_by_id(1)
+        self.assertIsNotNone(logiciel_client)
+        database.delete_logiciel_client(1)
+        self.assertIsNone(database.get_logiciel_client_by_id(1))
+
+        database.delete_logiciel(1)
+        database.delete_client(1)

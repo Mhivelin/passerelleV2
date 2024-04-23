@@ -43,4 +43,13 @@ def create_app():
     app.register_blueprint(zeendoc_bp)
     app.register_blueprint(database_bp)
 
+    from app.models import database
+    # ajouter les passarelles et les logiciels ebp et zeendoc
+    database.add_logiciel("EBP")
+    database.add_logiciel("Zeendoc")
+
+    database.add_passerelle_with_connectors("Remontée de paiement", 1, 1)
+
+
+
     return app

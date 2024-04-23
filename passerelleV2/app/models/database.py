@@ -540,6 +540,18 @@ def get_client_passerelle_by_id(id_client, id_passerelle):
     return execute_query_single(query, (id_client, id_passerelle))
 
 
+def get_passerelle_client_by_client(client_id):
+    """Récupère idClient IdPasserelle et LibPasserelle par idClient"""
+    query = """
+        SELECT CLIENT_PASSERELLE.idClient, CLIENT_PASSERELLE.IdPasserelle, PASSERELLE.LibPasserelle
+        FROM CLIENT_PASSERELLE
+        JOIN PASSERELLE ON CLIENT_PASSERELLE.IdPasserelle = PASSERELLE.IdPasserelle
+        WHERE CLIENT_PASSERELLE.idClient = ?
+    """
+
+
+
+    return execute_query(query, (client_id, ))
 
 
 
@@ -583,13 +595,9 @@ def get_logiciel_client_by_id(id_logiciel_client):
     query = "SELECT * FROM LOGICIEL_CLIENT WHERE idLogicielClient = ?"
     return execute_query_single(query, (id_logiciel_client, ))
 
-def add_logiciel_client(id_logiciel, id_client, id_logiciel_client):
+def add_logiciel_client(id_logiciel, id_client):
     """Ajoute un client de logiciel avec les informations spécifiées."""
-    return add_record(
-        "LOGICIEL_CLIENT",
-        ["IdLogiciel", "idLogicielClient", "idClient"],
-        [id_logiciel, id_client, id_logiciel_client],
-    )
+    return add_record("LOGICIEL_CLIENT", ["IdLogiciel", "idClient"], [id_logiciel, id_client])
 
 def delete_logiciel_client(id_logiciel_client):
     """Supprime un client de logiciel spécifique en fonction de l'identifiant du client de logiciel."""
@@ -629,7 +637,7 @@ def get_logiciel_ebp_client_by_id(id_logiciel_client):
     return execute_query_single(query, (id_logiciel_client, ))
 
 
-def add_logiciel_ebp_client(id_logiciel, id_client, id_logiciel_client):
+def add_logiciel_ebp_client(id_logiciel, id_client, id_logiciel_client, subscription_key, client_secret):
     """Ajoute un client de logiciel EBP avec les informations spécifiées."""
     return add_record(
         "LOGICIEL_CLIENT",
@@ -660,24 +668,67 @@ def get_all_logiciel_zeendoc_clients():
 def get_logiciel_zeendoc_client_by_id(id_logiciel_client):
     """Récupère un client de logiciel Zeendoc spécifique en fonction de l'identifiant du
     client de logiciel."""
-    query = "SELECT * FROM LOGICIEL_CLIENT WHERE IdLogicielClient = ?"
+    query = "SELECT * FROM LOGICIEL_CLIENT JOIN LOGICIEL_CLIENT_ZEENDOC USING (idLogicielClient) WHERE idLogicielClient = ?"
     return execute_query_single(query, (id_logiciel_client, ))
 
 
-def add_logiciel_zeendoc_client(id_logiciel, id_client, id_logiciel_client):
+# def add_logiciel_zeendoc_client(id_logiciel_client, login, password, url_client, db_connection):
+#     """Ajoute ou met à jour un client de logiciel Zeendoc avec les informations spécifiées."""
+#     cursor = db_connection.cursor()
+#     cursor.execute("SELECT 1 FROM LOGICIEL_CLIENT_ZEENDOC WHERE idLogicielClient = ?", (id_logiciel_client,))
+#     if cursor.fetchone():
+#         # Mise à jour de l'enregistrement existant
+#         cursor.execute("UPDATE LOGICIEL_CLIENT_ZEENDOC SET Login = ?, Password = ?, UrlClient = ? WHERE idLogicielClient = ?",
+#                        (login, password, url_client, id_logiciel_client))
+#     else:
+#         # Insertion d'un nouvel enregistrement
+#         cursor.execute("INSERT INTO LOGICIEL_CLIENT_ZEENDOC (idLogicielClient, Login, Password, UrlClient) VALUES (?, ?, ?, ?)",
+#                        (id_logiciel_client, login, password, url_client))
+#     db_connection.commit()
+
+def add_logiciel_zeendoc_client(id_logiciel, id_client, login, password, url_client):
     """Ajoute un client de logiciel Zeendoc avec les informations spécifiées."""
-    return add_record(
-        "LOGICIEL_CLIENT",
-        ["IdLogiciel", "idLogicielClient", "idClient"],
-        [id_logiciel, id_client, id_logiciel_client],
-    )
+    add_logiciel_client(id_logiciel, id_client)
+
+
+    # on recupere l'id du logiciel client
+    id_logiciel_client = get_logiciel_client_by_logiciel_and_client(id_logiciel, id_client)["idLogicielClient"]
+
+    # print("id_logiciel_client", id_logiciel_client)
+
+
+
+    add_record("LOGICIEL_CLIENT_ZEENDOC",
+                        ["idLogicielClient", "Login", "Password", "UrlClient"],
+                        [id_logiciel_client, login, password, url_client])
+
+
 
 
 def delete_logiciel_zeendoc_client(id_logiciel_client):
     """Supprime un client de logiciel Zeendoc spécifique en fonction de l'identifiant du
     client de logiciel."""
-    return delete_record("LOGICIEL_CLIENT", "IdLogicielClient = ?",
+    return delete_record("LOGICIEL_CLIENT_ZEENDOC", "IdLogicielClient = ?",
                          (id_logiciel_client, ))
+
+
+
+def set_logiciel_zeendoc_client_Index_Statut_Paiement(id_logiciel_client, Index_Statut_Paiement):
+    """Met à jour l'index de statut de paiement d'un client de logiciel Zeendoc spécifique."""
+    query = "UPDATE LOGICIEL_CLIENT_ZEENDOC SET Index_Statut_Paiement = ? WHERE idLogicielClient = ?"
+    return execute_query(query, (Index_Statut_Paiement, id_logiciel_client))
+
+def set_logiciel_zeendoc_client_Index_Ref_Doc(id_logiciel_client, Index_Ref_Doc):
+    """Met à jour l'index de référence de document d'un client de logiciel Zeendoc spécifique."""
+    query = "UPDATE LOGICIEL_CLIENT_ZEENDOC SET Index_Ref_Doc = ? WHERE idLogicielClient = ?"
+    return execute_query(query, (Index_Ref_Doc, id_logiciel_client))
+
+def set_logiciel_zeendoc_client_Classeur(id_logiciel_client, Classeur):
+    """Met à jour le classeur d'un client de logiciel Zeendoc spécifique."""
+    query = "UPDATE LOGICIEL_CLIENT_ZEENDOC SET Classeur = ? WHERE idLogicielClient = ?"
+    return execute_query(query, (Classeur, id_logiciel_client))
+
+
 
 
 
@@ -719,3 +770,8 @@ def drop_all_tables():
     drop_table("API_ZEENDOC")
     drop_table("EBP_CLIENT")
     drop_table("ZEENDOC_CLIENT")
+    drop_table("Connecte_Logiciel_Source")
+    drop_table("Connecte_Logiciel_Destination")
+    drop_table("CLIENT_PASSERELLE")
+    drop_table("LOGICIEL_CLIENT_EBP")
+    drop_table("LOGICIEL_CLIENT_ZEENDOC")

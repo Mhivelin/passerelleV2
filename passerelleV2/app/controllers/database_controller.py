@@ -5,7 +5,7 @@ Ce module contient les routes pour les différentes entités de la base de donn�
 
 
 from app.models import database
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, redirect, url_for
 from flask_login import login_required
 
 # Création d'un Blueprint pour le ebp controller
@@ -52,6 +52,28 @@ def add_passerelle():
     # ajouter la passerelle
     result = database.add_passerelle(data["lib_passerelle"])
     return jsonify(result)
+
+
+@database_bp.route("/database/passerelle_with_connectors", methods=["POST"])
+@login_required
+def add_passerelle_with_connectors():
+    """
+    Ajoute une passerelle à la base de données avec un connecteur source et un connecteur destination.
+    """
+    # obtenir les données de la requête (soit en JSON, soit en form-data)
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form
+
+    # ajouter la passerelle
+    result = database.add_passerelle_with_connectors(
+        data["lib_passerelle"],
+        data["id_logiciel_source"],
+        data["id_logiciel_destination"]
+    )
+    return redirect(url_for("main.home"))
+
 
 
 @database_bp.route("/database/passerelle/<int:passerelle_id>", methods=["DELETE"])
@@ -211,7 +233,7 @@ def add_client():
 
     # ajouter le client
     result = database.add_client(data["lib_client"])
-    return jsonify(result)
+    return redirect(url_for("main.home"))
 
 
 @database_bp.route("/database/client/<int:client_id>", methods=["DELETE"])
@@ -221,6 +243,7 @@ def delete_client(client_id):
     Supprime un client de la base de données.
     """
     result = database.delete_client(client_id)
+    print("result: ", result)
     return jsonify(result)
 
 
@@ -415,7 +438,7 @@ def add_logiciel_zeendoc_client():
         data = request.form
 
     # ajouter le logiciel zeendoc client
-    result = database.add_logiciel_zeendoc_client(data["id_logiciel"], data["id_client"])
+    result = database.add_logiciel_zeendoc_client(data["idLogicielClient"], data["Login"], data["Password"], data["UrlClient"])
     return jsonify(result)
 
 
@@ -429,5 +452,58 @@ def delete_logiciel_zeendoc_client(logiciel_zeendoc_client_id):
     """
     result = database.delete_logiciel_zeendoc_client(logiciel_zeendoc_client_id)
     return jsonify(result)
+
+
+###################################################################################################
+#                                   CLIENT PASSERELLE                                            #
+###################################################################################################
+
+@database_bp.route("/database/client_passerelle", methods=["GET"])
+@login_required
+def get_all_clients_passerelle():
+    """
+    Obtient tous les clients passerelle de la base de données.
+    """
+    clients_passerelle = database.get_all_clients_passerelle()
+    return jsonify(clients_passerelle)
+
+
+@database_bp.route("/database/client_passerelle/<int:client_passerelle_id>", methods=["GET"])
+@login_required
+def get_client_passerelle_by_id(client_passerelle_id):
+    """
+    Obtient un client passerelle par son ID.
+    """
+    client_passerelle = database.get_client_passerelle_by_id(client_passerelle_id)
+    return jsonify(client_passerelle)
+
+
+@database_bp.route("/database/client_passerelle", methods=["POST"])
+@login_required
+def add_client_passerelle():
+    """
+    Ajoute un client passerelle à la base de données.
+    """
+    # obtenir les données de la requête (soit en JSON, soit en form-data)
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form
+
+    # ajouter le client passerelle
+    result = database.add_client_passerelle(data["id_client"], data["id_passerelle"])
+    return redirect(url_for("main.home"))
+
+
+@database_bp.route("/database/client_passerelle/<int:id_client>/<int:id_passerelle>", methods=["DELETE"])
+@login_required
+def delete_client_passerelle(id_client, id_passerelle):
+    """
+    Supprime un client passerelle de la base de données.
+    """
+    result = database.delete_client_passerelle(id_client, id_passerelle)
+    return jsonify(result)
+
+
 
 
