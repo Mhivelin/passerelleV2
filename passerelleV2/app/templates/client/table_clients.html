@@ -1,5 +1,4 @@
-{% extends 'base.html' %} {% block title %}Liste des Clients{% endblock %} {%
-block content %}
+{% block content %}
 <h2>Liste des Clients</h2>
 <table class="table table-striped" id="clientsTable">
   <thead>
@@ -77,7 +76,7 @@ block content %}
         </table>
         <div>
           <a
-            href="{{ url_for('passerelle.form_connect_passerelle', idClient=client.idClient) }}"
+            href="{{ url_for('client.form_connect_passerelle/', id_client=client.idClient) }}"
             class="btn btn-primary"
             >connecter une passerelle
           </a>

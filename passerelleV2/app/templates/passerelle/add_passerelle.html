@@ -1,12 +1,20 @@
 {% extends 'base.html' %} {% block title %}Ajout Passerelle{% endblock %} {%
 block content%}
-
 <br />
+
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+/>
+<link
+  href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css"
+  rel="stylesheet"
+/>
 
 <h1>Ajout Passerelle</h1>
 
 <form
-  action="{{ url_for('database.add_passerelle_with_connectors') }}"
+  action="{{ url_for('database.add_passerelle_with_connectors_and_fields') }}"
   method="post"
 >
   <div class="form-group">
@@ -27,7 +35,7 @@ block content%}
       name="id_logiciel_source"
     >
       {% for logiciel in logiciels %}
-      <option value="{{ logiciel.idLogiciel }}">
+      <option value="{{ logiciel.IdLogiciel }}">
         {{ logiciel.LibLogiciel }}
       </option>
       {% endfor %}
@@ -48,33 +56,21 @@ block content%}
     </select>
   </div>
 
-  <!-- Multiple select -->
-  <label for="requiert_champs">Champs requis</label>
-  <select
-    class="selectpicker"
-    multiple
-    data-live-search="true"
-    name="requiert_champs[]"
-  >
-    <option>Option 1</option>
-    <option>Option 2</option>
-    <option>Option 3</option>
-    <option>Option 4</option>
-    <option>Option 5</option>
-  </select>
+  <div class="form-group">
+    <label for="requis"> champs requis </label>
+    <select
+      multiple="multiple"
+      class="form-control"
+      id="requis"
+      name="requis[]"
+    >
+      {% for champ in champs %}
+      <option value="{{ champ.id_champ }}">{{ champ.lib_champ }}</option>
+      {% endfor %}
+    </select>
+  </div>
 
   <button type="submit" class="btn btn-primary">Ajouter</button>
 </form>
-
-<script>
-  // Convertir les logiciels en JSON et afficher dans la console
-  console.log("logiciels :");
-  console.log({{ logiciels|tojson }});
-
-
-  $(document).ready(function(){
-    $('.selectpicker').selectpicker();
-  });
-</script>
 
 {% endblock %}

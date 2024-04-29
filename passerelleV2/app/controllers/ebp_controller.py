@@ -84,5 +84,4 @@ def SinginRedirect():
     instance_client_ebp = EBP(id)
     instance_client_ebp.callback(code)
 
-    # Rediriger l'utilisateur vers la page de mise à jour du client avec client_id en paramètre GET
-    return redirect(url_for("client.form_update_client", client_id=id))
+    return redirect(url_for("interface.index"))

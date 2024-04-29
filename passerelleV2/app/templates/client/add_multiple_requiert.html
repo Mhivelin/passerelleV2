@@ -1,0 +1,25 @@
+{% extends 'base.html' %} {% block title %}Ajout des champs requis{% endblock %}
+{% block content%}
+<br />
+
+<h1>Ajout des champs requis</h1>
+{{ id_client }} {{ fields }}
+<form action="{{ url_for('database.add_multiple_requiert') }}"
+ method="post">
+  <div class="form-group">
+    {% for field in fields %}
+    <label for="lib_champ">{{ field.lib_champ }}</label>
+    <input type="hidden" name="id_champ[]" value="{{ field.IdChamp }}" />
+    <input
+      type="text"
+      class="form-control"
+      id="lib_champ"
+      name="lib_champ[]"
+      placeholder="Nom"
+    />
+    </br>
+    {% endfor %}
+  </div>
+  <button type="submit" class="btn btn-primary">Ajouter</button>
+</form>
+{% endblock %}

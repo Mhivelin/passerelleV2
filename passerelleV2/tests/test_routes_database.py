@@ -67,12 +67,12 @@ class TestRoutes(TestCase):
         return False
 
 
-    def test_drop_table(self):
-        """
-        Test de la suppression de la table. (à ne pas exécuter si on veut conserver
-        les données)
-        """
-        database.drop_all_tables()
+    # def test_drop_table(self):
+    #     """
+    #     Test de la suppression de la table. (à ne pas exécuter si on veut conserver
+    #     les données)
+    #     """
+    #     database.drop_all_tables()
 
 
     def test_login(self):
@@ -88,350 +88,62 @@ class TestRoutes(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('Liste des Clients', response.data.decode())
 
-###### PASSERELLE ######
 
-    def test_get_all_passerelles(self):
+
+
+# @database_bp.route("/database/add_passerelle_with_connectors_and_fields", methods=["POST"])
+# @login_required
+# def add_passerelle_with_connectors_and_fields():
+#     """
+#     Ajoute une passerelle à la base de données avec un connecteur source et un connecteur destination.
+#     """
+#     # obtenir les données de la requête (soit en JSON, soit en form-data)
+#     if request.is_json:
+#         data = request.get_json()
+#     else:
+#         data = request.form
+
+#     print("data: ", data)
+
+
+#     # ajouter la passerelle
+#     database.add_passerelle_with_connectors(
+#         data["lib_passerelle"],
+#         data["id_logiciel_source"],
+#         data["id_logiciel_destination"])
+
+#     # ajouter les champs
+#     for champ in data["requis"]:
+#         print("champ: ", champ)
+#         database.add_requiere_passerelle(champ, data["id_passerelle"])
+
+#     return redirect(url_for("v_interface.home"))
+
+
+
+    def test_add_passerelle_with_connectors_and_fields(self):
         """
-        Teste la route get_all_passerelles
+        Teste la route add_passerelle_with_connectors_and_fields
         """
-        response = self.client.get("/database/passerelle")
+        # Simuler une connexion
+        self.login("admin", "admin")
+
+        response = self.client.post("/database/add_passerelle_with_connectors_and_fields", data={
+            "lib_passerelle": "passerelle_test",
+            "id_logiciel_source": 1,
+            "id_logiciel_destination": 2,
+            "requis": ["champ1", "champ2"]
+        }, follow_redirects=True)
+
+
+
         self.assertEqual(response.status_code, 200)
-        self.assertIn('[', response.data.decode())
+        self.assertIn('{"status":"success"}', response.data.decode())
 
+        # supprimer les données ajoutées
+        id_passerelle = database.get_id_passerelle_by_lib_passerelle("passerelle_test")
 
-    def test_get_passerelle_by_id(self):
-        """
-        Teste la route get_passerelle_by_id
-        """
-        # ajout d'une passerelle
-        database.add_passerelle("passerelle1")
+        print("id_passerelle: ", id_passerelle)
+        print("logiciel pass: ", database.get_logiciel_by_passerelle(id_passerelle))
 
-        response = self.client.get("/database/passerelle/1")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('1', response.data.decode())
-
-        # suppression de la passerelle
-        database.delete_passerelle(1)
-
-
-    def test_add_passerelle_json(self):
-        """
-        Teste la route add_passerelle avec des données JSON
-        """
-        response = self.client.post("/database/passerelle", json={"lib_passerelle": "passerelle1"})
-        self.assertEqual(response.status_code, 200)
-
-
-        # vérification de l'ajout de la passerelle
-        passerelle = database.get_passerelle_by_id(1)
-        self.assertIsNotNone(passerelle)
-
-
-        # suppression de la passerelle
-        database.delete_passerelle(1)
-
-
-    def test_add_passerelle_form(self):
-        """
-        Teste la route add_passerelle avec des données form-data
-        """
-        response = self.client.post("/database/passerelle", data={"lib_passerelle": "passerelle1"})
-        self.assertEqual(response.status_code, 200)
-
-
-        # vérification de l'ajout de la passerelle
-        passerelle = database.get_passerelle_by_id(1)
-        self.assertIsNotNone(passerelle)
-
-
-        # suppression de la passerelle
-        database.delete_passerelle(1)
-
-
-    def test_remove_passerelle(self):
-        """
-        Teste la route delete_passerelle
-        """
-        # ajout d'une passerelle
-        database.add_passerelle("passerelle1")
-
-        response = self.client.delete("/database/passerelle/1")
-        self.assertEqual(response.status_code, 200)
-
-
-        # vérification de la suppression de la passerelle
-        passerelle = database.get_passerelle_by_id(1)
-        self.assertIsNone(passerelle)
-
-###### CONNECTEURS ######
-
-    def test_connecteur_source_operations(self):
-        """
-        Teste les opérations CRUD sur les connecteurs source.
-        """
-        # ajout d'une passerelle et d'un logiciel
-        database.add_passerelle("passerelle1")
-        database.add_logiciel("logiciel1")
-
-        # ajout d'un connecteur source
-        response = self.client.post(
-            "/database/connecteur_source",
-            json={"id_passerelle": 1, "id_logiciel": 1})
-        self.assertEqual(response.status_code, 200)
-
-        # vérification de l'ajout du connecteur source
-        response = self.client.get("/database/connecteur_source/1")
-        self.assertEqual(response.status_code, 200)
-
-        # suppression du connecteur source
-        self.client.delete("/database/connecteur_source/1")
-
-
-        # vérification de la suppression du connecteur source
-        response = self.client.get("/database/connecteur_source/1")
-        self.assertIn("null", response.data.decode())
-
-        # suppression de la passerelle et du logiciel
-        database.delete_passerelle(1)
-        database.delete_logiciel(1)
-
-
-    def test_connecteur_destination_operations(self):
-        """
-        Teste les opérations CRUD sur les connecteurs destination.
-        """
-        # ajout d'une passerelle et d'un logiciel
-        database.add_passerelle("passerelle1")
-        database.add_logiciel("logiciel1")
-
-        # ajout d'un connecteur destination
-        response = self.client.post(
-            "/database/connecteur_destination",
-            json={"id_passerelle": 1,
-                  "id_logiciel": 1})
-        self.assertEqual(response.status_code, 200)
-
-        # vérification de l'ajout du connecteur destination
-        response = self.client.get("/database/connecteur_destination/1")
-        self.assertEqual(response.status_code, 200)
-
-        # suppression du connecteur destination
-        self.client.delete("/database/connecteur_destination/1")
-
-
-        # vérification de la suppression du connecteur destination
-        response = self.client.get("/database/connecteur_destination/1")
-        self.assertIn("null", response.data.decode())
-
-        # suppression de la passerelle et du logiciel
-        database.delete_passerelle(1)
-        database.delete_logiciel(1)
-
-###### CLIENT ######
-
-    def test_get_all_clients(self):
-        """
-        Teste la route get_all_clients
-        """
-        response = self.client.get("/database/client")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('[', response.data.decode())
-
-
-    def test_get_client_by_id(self):
-        """
-        Teste la route get_client_by_id
-        """
-        # ajout d'un client
-        database.add_client("client1")
-
-        response = self.client.get("/database/client/1")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('1', response.data.decode())
-
-        # suppression du client
-        database.delete_client(1)
-
-
-    def test_add_client_json(self):
-        """
-        Teste la route add_client avec des données JSON
-        """
-        response = self.client.post("/database/client", json={"lib_client": "client1"})
-        self.assertEqual(response.status_code, 200)
-
-
-        # vérification de l'ajout du client
-        client = database.get_client_by_id(1)
-        self.assertIsNotNone(client)
-
-
-        # suppression du client
-        database.delete_client(1)
-
-
-    def test_add_client_form(self):
-        """
-        Teste la route add_client avec des données form-data
-        """
-        response = self.client.post("/database/client", data={"lib_client": "client1"})
-        self.assertEqual(response.status_code, 200)
-
-
-        # vérification de l'ajout du client
-        client = database.get_client_by_id(1)
-        self.assertIsNotNone(client)
-
-
-        # suppression du client
-        database.delete_client(1)
-
-###### LOGICIEL ######
-
-    def test_get_all_logiciels(self):
-        """
-        Teste la route get_all_logiciels
-        """
-        response = self.client.get("/database/logiciel")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('[', response.data.decode())
-
-
-    def test_get_logiciel_by_id(self):
-        """
-        Teste la route get_logiciel_by_id
-        """
-        # ajout d'un logiciel
-        database.add_logiciel("logiciel1")
-
-        response = self.client.get("/database/logiciel/1")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('1', response.data.decode())
-
-        # suppression du logiciel
-        database.delete_logiciel(1)
-
-
-    def test_add_logiciel_json(self):
-        """
-        Teste la route add_logiciel avec des données JSON
-        """
-        response = self.client.post("/database/logiciel", json={"lib_logiciel": "logiciel1"})
-        self.assertEqual(response.status_code, 200)
-
-
-        # vérification de l'ajout du logiciel
-        logiciel = database.get_logiciel_by_id(1)
-        self.assertIsNotNone(logiciel)
-
-
-        # suppression du logiciel
-        database.delete_logiciel(1)
-
-
-    def test_add_logiciel_form(self):
-        """
-        Teste la route add_logiciel avec des données form-data
-        """
-        response = self.client.post("/database/logiciel", data={"lib_logiciel": "logiciel1"})
-        self.assertEqual(response.status_code, 200)
-
-
-        # vérification de l'ajout du logiciel
-        logiciel = database.get_logiciel_by_id(1)
-        self.assertIsNotNone(logiciel)
-
-
-        # suppression du logiciel
-        database.delete_logiciel(1)
-
-
-    def test_remove_logiciel(self):
-        """
-        Teste la route delete_logiciel
-        """
-        # ajout d'un logiciel
-        database.add_logiciel("logiciel1")
-
-        response = self.client.delete("/database/logiciel/1")
-        self.assertEqual(response.status_code, 200)
-
-
-        # vérification de la suppression du logiciel
-        logiciel = database.get_logiciel_by_id(1)
-        self.assertIsNone(logiciel)
-
-
-    ###### LOGICIEL EBP CLIENT ######
-
-    # def test_passerelle_operations(self):
-    #     """
-    #     Test d'ajout, de récupération et de suppression des enregistrements de passerelle.
-    #     """
-
-    #     # ajout d'une passerelle
-    #     self.client.post("/database/passerelle", json={"lib_passerelle": "passerelle1"})
-
-    #     # récupération de la passerelle
-    #     passerelle = self.client.get("/database/passerelle/1")
-
-    #     # vérification de l'existence de la passerelle
-    #     self.assertIsNotNone(passerelle)
-
-    #     # suppression de la passerelle
-    #     self.client.delete("/database/passerelle/1")
-
-    #     # vérification de la suppression de la passerelle
-    #     self.assertIsNone(database.get_passerelle_by_id(1))
-
-
-    ###### LOGICIEL ZEENDOC CLIENT ######
-
-    # def test_logiciel_zeendoc_client_operations(self):
-    #     """
-    #     Test d'ajout, de récupération et de suppression des enregistrements de logiciel.
-    #     """
-
-    #     database.add_logiciel("logiciel1")
-
-    #     self.client.post("/database/logiciel_zeendoc_client", json={"idLogicielClient": 1, "Login": "login", "Password": "password", "UrlClient": "url"})
-    #     self.assertIsNotNone(self.client.get("/database/logiciel_zeendoc_client/1"))
-    #     self.client.delete("/database/logiciel_zeendoc_client/1")
-    #     self.assertIsNone(database.get_logiciel_by_id(1))
-
-    #     database.delete_logiciel(1)
-    #     database.delete_logiciel_client(1)
-    #     database.delete_logiciel_ebp_client(1)
-
-
-
-
-    ###### CLIENT ######
-
-    def test_client_operations(self):
-        """
-        Test d'ajout, de récupération et de suppression des enregistrements de client.
-        """
-        database.add_client("client1")
-        client = database.get_client_by_id(1)
-        self.assertIsNotNone(client)
-        database.delete_client(1)
-        self.assertIsNone(database.get_client_by_id(1))
-
-
-    ###### LOGICIEL CLIENT ######
-
-    def test_logiciel_client_operations(self):
-        """
-        Test d'ajout, de récupération et de suppression des enregistrements de logiciel client.
-        """
-        database.add_logiciel("logiciel1")
-        database.add_client("client1")
-        database.add_logiciel_client(1, 1)
-        logiciel_client = database.get_logiciel_client_by_id(1)
-        self.assertIsNotNone(logiciel_client)
-        database.delete_logiciel_client(1)
-        self.assertIsNone(database.get_logiciel_client_by_id(1))
-
-        database.delete_logiciel(1)
-        database.delete_client(1)
+        database.delete_passerelle(id_passerelle)

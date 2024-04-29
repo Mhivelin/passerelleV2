@@ -44,6 +44,10 @@ class TestModels(unittest.TestCase):
     #     """
     #     database.drop_all_tables()
 
+    #     database.drop_table("LOGICIEL_CLIENT")
+    #     database.drop_table("LOGICIEL_CLIENT_EBP")
+    #     database.drop_table("LOGICIEL_CLIENT_ZEENDOC")
+
 
 
     def test_create_database(self):
@@ -123,37 +127,6 @@ class TestModels(unittest.TestCase):
 
 
 
-    def test_logiciel_zendoc_client_operations(self):
-        """
-        Test d'ajout, de récupération et de suppression des enregistrements de logiciel
-        zeendoc client.
-        """
-        database.add_logiciel("logiciel1")
-        database.add_client("client1")
-        database.add_logiciel_zeendoc_client(1, 1, 1)
-        logiciel_zeendoc_client = database.get_logiciel_zeendoc_client_by_id(1)
-        self.assertIsNotNone(logiciel_zeendoc_client)
-        database.delete_logiciel_zeendoc_client(1)
-        self.assertIsNone(database.get_logiciel_zeendoc_client_by_id(1))
-        database.delete_logiciel(1)
-        database.delete_client(1)
-
-
-    def test_logiciel_ebp_client_operations(self):
-        """
-        Test d'ajout, de récupération et de suppression des enregistrements de logiciel ebp client.
-        """
-        database.add_logiciel("logiciel1")
-        database.add_client("client1")
-        database.add_logiciel_ebp_client(1, 1, 1)
-        logiciel_ebp_client = database.get_logiciel_ebp_client_by_id(1)
-        self.assertIsNotNone(logiciel_ebp_client)
-        database.delete_logiciel_ebp_client(1)
-        self.assertIsNone(database.get_logiciel_ebp_client_by_id(1))
-        database.delete_logiciel(1)
-        database.delete_client(1)
-
-
     def test_client_passerelle_operations(self):
         """
         Test d'ajout, de récupération et de suppression des enregistrements de client passerelle.
@@ -167,4 +140,22 @@ class TestModels(unittest.TestCase):
         self.assertIsNone(database.get_client_passerelle_by_id(1, 1))
         database.delete_client(1)
         database.delete_passerelle(1)
+
+
+
+    def test_requiere_operations(self):
+        """
+        Test d'ajout, de récupération et de suppression des enregistrements de requiere.
+        """
+        database.add_champ("requis1", "table1")
+        self.assertIsNotNone(database.get_all_champs())
+
+        database.add_requiere_logiciel(1, 1)
+        self.assertIsNotNone(database.get_all_requiere())
+
+
+        database.delete_requiere_logiciel(1, 1)
+        database.delete_champ(1)
+
+
 
