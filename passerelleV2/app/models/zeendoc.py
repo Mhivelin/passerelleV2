@@ -9,42 +9,38 @@ import requests
 
 
 class Zeendoc:
+    """Classe qui permet de gérer les requêtes vers l'API Zeendoc"""
 
     def __init__(self, id) -> None:
+        """Constructeur de la classe Zeendoc"""
 
-        infos = db.get_logiciel_zeendoc_client_by_id(id)
-
-        self.idLogicielClient = infos["idLogicielClient"]
-        self.idLogiciel = infos["IdLogiciel"]
-        self.idClient = infos["idClient"]
-        self.indexPaiement = infos["Index_Statut_Paiement"]
-        self.indexREF = infos["Index_Ref_Doc"]
-        self.classeur = infos["Classeur"]
-        self.log = infos["Login"]
-        self.cpassword = infos["Password"]
-        self.urlclient = infos["UrlClient"]
+        infos = db.get_champ_client_by_client(id)
 
 
 
+        for info in infos:
+            if info["lib_champ"] == "Zeendoc_Login":
+                self.log = info["valeur"]
+            elif info["lib_champ"] == "Zeendoc_CPassword":
+                self.cpassword = info["valeur"]
+            elif info["lib_champ"] == "Zeendoc_URL_Client":
+                self.urlclient = info["valeur"]
+            elif info["lib_champ"] == "Zeendoc_CLASSEUR":
+                self.classeur = info["valeur"]
+            elif info["lib_champ"] == "EBP_FOLDER_ID":
+                self.indexBAP = info["valeur"]
+            elif info["lib_champ"] == "EBP_PAIEMENT":
+                self.indexPaiement = info["valeur"]
+            elif info["lib_champ"] == "EBP_REF":
+                self.indexREF = info["valeur"]
 
-    # def BdGetClientZeendoc(self, id):
-    #     try:
-    #         conn = get_db_connection()
-    #         cursor = conn.cursor()
 
-    #         cursor.execute("SELECT ZEENDOC_LOGIN, ZEENDOC_URLCLIENT, ZEENDOC_CPASSWORD, ZEENDOC_CLASSEUR FROM CLIENT_ZEENDOC WHERE id = ?", (id,))
-    #         client = cursor.fetchone()
+        self.login()
 
-    #         if client:
-    #             return dict(client)
-    #         else:
-    #             return None
-    #     except Exception as e:
-    #         print(f"Erreur lors de la récupération du client Zeendoc : {e}")
-    #         return None
-    #     finally:
-    #         if conn:
-    #             conn.close()
+
+
+
+
 
     def login(self):
         """fonction qui permet de se connecter à l'api zeendoc

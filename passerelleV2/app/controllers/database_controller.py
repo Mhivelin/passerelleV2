@@ -6,6 +6,7 @@ Ce module contient les routes pour les différentes entités de la base de donn�
 from flask_jwt_extended import jwt_required
 from flask import Blueprint, jsonify, request, redirect, url_for
 from flask_login import login_required
+import logging
 from app.models import database
 
 
@@ -279,7 +280,8 @@ def add_client():
 
     # ajouter le client
     database.add_client(data["lib_client"])
-    return redirect(url_for("v_interface.home"))
+    id_client = database.get_id_client_by_lib_client(data["lib_client"])
+    return redirect(url_for("passerelle.form_connect_passerelle", idClient=id_client))
 
 
 @database_bp.route("/database/app/client", methods=["POST"])
@@ -411,7 +413,7 @@ def add_client_passerelle():
 
     # ajouter le client passerelle
     database.add_client_passerelle(data["id_client"], data["id_passerelle"])
-    return redirect(url_for("v_interface.home"))
+    return redirect(url_for("v_client.form_add_multiple_requiert", id_client=data["id_client"]))
 
 
 @database_bp.route("/database/client_passerelle/<int:id_client>/<int:id_passerelle>", methods=["DELETE"])
@@ -497,6 +499,20 @@ def get_champ_by_logiciel(logiciel_id):
     return jsonify(champs)
 
 
+@database_bp.route("/database/champByClient/<int:client_id>", methods=["GET"])
+@login_required
+def get_champ_by_client(client_id):
+    """
+    Obtient tous les champs d'un client.
+    """
+    champs = database.get_champ_by_client(client_id)
+    return jsonify(champs)
+
+
+
+
+
+
 ###################################################################################################
 #                                          requiert                                               #
 ###################################################################################################
@@ -554,27 +570,7 @@ def add_requiert_passerelle():
     return redirect(url_for("v_interface.home"))
 
 
-@database_bp.route("/database/add_multiple_requiert", methods=["POST"])
-@login_required
-def add_multiple_requiert():
-    """
-    Ajoute plusieurs requiert à la base de données.
-    """
-    # obtenir les données de la requête (soit en JSON, soit en form-data)
-    if request.is_json:
-        data = request.get_json()
-        requis_list = data['requis']
-    else:
-        data = request.form
-        requis_list = data.getlist('requis')
 
-    # ajouter les requiert
-    for requis in requis_list:
-        print("requis: ", requis)
-        print(database.add_requiert_passerelle(requis, data["id_passerelle"]))
-
-    # return jsonify({"data": data, "requis": requis_list})
-    return redirect(url_for("v_interface.home"))
 
 
 @database_bp.route("/database/requiert/<int:id_champ>/<int:id_logiciel>", methods=["DELETE"])
@@ -635,3 +631,85 @@ def get_requiert_by_client(client_id):
     """
     requierts = database.get_requiert_by_client(client_id)
     return jsonify(requierts)
+
+
+
+###################################################################################################
+#                                     CHAMP CLIENT                                                #
+###################################################################################################
+
+@database_bp.route("/database/champ_client", methods=["GET"])
+@login_required
+def get_all_champs_clients():
+    """
+    Obtient tous les champs clients de la base de données.
+    """
+    champs_clients = database.get_all_champs_clients()
+    return jsonify(champs_clients)
+
+
+@database_bp.route("/database/champ_client/<int:champ_client_id>", methods=["GET"])
+@login_required
+def get_champ_client_by_id(champ_client_id):
+    """
+    Obtient un champ client par son ID.
+    """
+    champ_client = database.get_champ_client_by_id(champ_client_id)
+    return jsonify(champ_client)
+
+
+@database_bp.route("/database/champ_client", methods=["POST"])
+@login_required
+def add_champ_client():
+    """
+    Ajoute un champ client à la base de données.
+    """
+    # obtenir les données de la requête (soit en JSON, soit en form-data)
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form
+
+    # ajouter le champ client
+    database.add_champ_client(data["id_champ"], data["id_client"])
+    return redirect(url_for("v_interface.home"))
+
+@database_bp.route("/database/champ_client_multiple", methods=["POST"])
+@login_required
+def add_champ_client_multiple():
+    """
+    Ajoute plusieurs champs client à un client dans la base de données.
+    si le champ existe déjà, il est mis à jour.
+    """
+    if request.is_json:
+        data = request.get_json()
+        id_champs = data['id_champ']
+        lib_champs = data['lib_champ']
+    else:
+        data = request.form
+        id_champs = data.getlist('id_champ[]')
+        lib_champs = data.getlist('lib_champ[]')
+        logging.debug("IDs: %s, Labels: %s", id_champs, lib_champs)
+
+
+
+    # Ajouter les champs client
+    id_client = data.get('id_client')
+    champs = []
+    for id_champ, lib_champ in zip(id_champs, lib_champs):
+        database.add_champ_client(id_client, id_champ, lib_champ)
+        champs.append({'id_champ': id_champ, 'lib_champ': lib_champ})
+
+    return redirect(url_for("v_interface.home"))
+    # return jsonify({"data": data, "champs": champs})
+
+
+@database_bp.route("/database/champ_client_by_client/<int:client_id>", methods=["GET"])
+def get_champ_client_by_client(client_id):
+    """
+    Obtient tous les champs d'un client.
+    """
+    champs = database.get_champ_client_by_client(client_id)
+    return jsonify(champs)
+
+

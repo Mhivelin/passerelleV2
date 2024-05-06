@@ -52,6 +52,7 @@ class TestModels(unittest.TestCase):
         database.add_champ("EBP_Client_ID", "EBP")
         database.add_champ("EBP_Client_Secret", "EBP")
         database.add_champ("EBP_Subscription_Key", "EBP")
+        database.add_champ("EBP_token", "EBP")
 
         database.add_champ("Zeendoc_Login", "Zeendoc")
         database.add_champ("Zeendoc_URL_Client", "Zeendoc")
@@ -68,8 +69,10 @@ class TestModels(unittest.TestCase):
 
         idChamp = database.get_id_champ_by_lib_champ("EBP_Subscription_Key")
         idLogiciel = database.get_id_logiciel_by_lib_logiciel("EBP")
-        print(idChamp)
-        print(idLogiciel)
+        database.add_requiert_logiciel(idChamp, idLogiciel)
+
+        idChamp = database.get_id_champ_by_lib_champ("EBP_token")
+        idLogiciel = database.get_id_logiciel_by_lib_logiciel("EBP")
         database.add_requiert_logiciel(idChamp, idLogiciel)
 
         idChamp = database.get_id_champ_by_lib_champ("Zeendoc_Login")
@@ -105,4 +108,42 @@ class TestModels(unittest.TestCase):
         print("idPasserelle")
         print(idPasserelle)
         database.add_requiert_passerelle(idChamp, idPasserelle)
+
+
+        # ajout du client
+        database.add_client("client1")
+        database.add_client_passerelle(1, 1)
+
+        # ajout des champs du client
+        idChamp = database.get_id_champ_by_lib_champ("EBP_Client_ID")
+        database.add_champ_client(1, idChamp, "jupiterwithoutpkce")
+
+        idChamp = database.get_id_champ_by_lib_champ("EBP_Client_Secret")
+        database.add_champ_client(1, idChamp, "78f68eac-c4e2-4221-9836-d66db48a75f0")
+
+        idChamp = database.get_id_champ_by_lib_champ("EBP_Subscription_Key")
+        database.add_champ_client(1, idChamp, "9b90dc6db6554429a027cb43fe12ab4e")
+
+        idChamp = database.get_id_champ_by_lib_champ("Zeendoc_Login")
+        database.add_champ_client(1, idChamp, "tests_webservices@zeendoc.com")
+
+        idChamp = database.get_id_champ_by_lib_champ("Zeendoc_URL_Client")
+        database.add_champ_client(1, idChamp, "tests_webservices")
+
+        idChamp = database.get_id_champ_by_lib_champ("Zeendoc_CPassword")
+        database.add_champ_client(1, idChamp, "tests01")
+
+        idChamp = database.get_id_champ_by_lib_champ("EBP_FOLDER_ID")
+        database.add_champ_client(1, idChamp, "306851")
+
+        idChamp = database.get_id_champ_by_lib_champ("Zeendoc_CLASSEUR")
+        database.add_champ_client(1, idChamp, "1")
+
+
+
+
+
+
+
+
 

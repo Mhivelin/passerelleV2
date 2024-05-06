@@ -6,6 +6,10 @@ La passerelle DELTIC est un projet qui permettra de faire communiquer plusieurs 
 ## Installation
 Pour installer la passerelle DELTIC, il suffit de cloner le projet sur votre machine. Ensuite, grace a docker, vous pourrez lancer la passerelle.
 
+docker build -t passerelle_deltic .
+
+docker run -p 5000:5000 -d --name passerelle_deltic passerelle_deltic
+
 ## Utilisation
 Pour utiliser la passerelle DELTIC, il suffit d'avoir les différentes informations de connexion des applications à connecter. ensuite, il suffit de les renseigner dans le formulaire de configuration de la passerelle. Puis, le l'application se chargera de faire la communication entre les applications en suivant sa routine.
 
@@ -30,16 +34,16 @@ L'url du client (Zeendoc URL Client)
 Le mot de passe (Zeendoc CPassword)
 
 #### Configuration :
-Se rendre sur cette page pour ajouter un nouveau client 
-Remplir les informations requises 
-Valider le formulaire 
+Se rendre sur cette page pour ajouter un nouveau client
+Remplir les informations requises
+Valider le formulaire
 Se rendre sur la page de configuration du client
 Se connecter à l'API EBP grace au bouton
 selectionner les champs requis
 EBP_FOLDER_ID : l'identifiant du dossier EBP
 ZEENDOC_CLASSEUR : l'identifiant du classeur Zeendoc
-Enregistrer les modifications 
-Tester la configuration en lançant une routine 
+Enregistrer les modifications
+Tester la configuration en lançant une routine
 
 ### base de données
 

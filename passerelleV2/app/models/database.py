@@ -46,7 +46,7 @@ CREATE TABLE CLIENT_PASSERELLE(
    FOREIGN KEY(IdPasserelle) REFERENCES PASSERELLE(IdPasserelle)
 );
 
-CREATE TABLE requiert(
+CREATE TABLE REQUIERT(
    IdLogiciel INTEGER,
    IdPasserelle INTEGER,
    id_champ INTEGER NOT NULL,
@@ -116,7 +116,7 @@ def create_database():
     - Connecte_Logiciel_Destination
     - CLIENT_PASSERELLE
     - CHAMP
-    - requiert
+    - REQUIERT
     - CHAMP_CLIENT
 
 
@@ -226,14 +226,14 @@ def create_database():
                 PRIMARY KEY(id_champ)
             );""")
 
-    # requiert
+    # REQUIERT
     if not execute_query("""SELECT name
                             FROM sqlite_master
                             WHERE type='table'
-                            AND name='requiert';"""):
+                            AND name='REQUIERT';"""):
         cursor.execute(
             """
-            CREATE TABLE requiert(
+            CREATE TABLE REQUIERT(
                 IdLogiciel INTEGER,
                 IdPasserelle INTEGER,
                 id_champ INTEGER NOT NULL,
@@ -246,6 +246,7 @@ def create_database():
                     (IdLogiciel IS NULL AND IdPasserelle IS NOT NULL)
                 )
             );""")
+
 
 
     # CHAMP_CLIENT
@@ -443,7 +444,7 @@ def get_passerelle_with_connectors_by_id(id_passerelle):
 
 def add_passerelle_with_connectors(lib_passerelle, source_logiciel_id, destination_logiciel_id):
     """Ajoute une passerelle avec des connecteurs source et destination spécifiés.
-    note: requiert des logiciels existants dans la base de données.
+    note: REQUIERT des logiciels existants dans la base de données.
     """
     try:
         # Ajouter la passerelle
@@ -521,6 +522,11 @@ def get_client_by_id(id_client):
     """Récupère un client spécifique en fonction de son identifiant."""
     return get_record_by_id("CLIENT", "idClient", id_client)
 
+def get_id_client_by_lib_client(lib_client):
+    """Récupère un client spécifique en fonction de son libellé."""
+    query = "SELECT idClient FROM CLIENT WHERE username = ?"
+    return execute_query_single(query, (lib_client, ))["idClient"]
+
 def add_client(username):
     """Ajoute un client avec le nom d'utilisateur spécifié."""
     return add_record("CLIENT", ["username"], [username])
@@ -554,6 +560,16 @@ def get_client_by_passerelle(passerelle_id):
         JOIN CLIENT AS c ON client_ids.idClient = c.idClient
     """
     return execute_query(query, (passerelle_id, ))
+
+def get_client_passerelle():
+    """Récupère les passerelles clients."""
+    query = """
+        SELECT CLIENT_PASSERELLE.idClient, CLIENT_PASSERELLE.IdPasserelle
+        FROM CLIENT_PASSERELLE
+    """
+    return execute_query(query)
+
+
 
 def add_client_passerelle(id_client, id_passerelle):
     """Ajoute un client à une passerelle spécifique."""
@@ -675,7 +691,7 @@ def get_champ_by_logiciel(logiciel_id):
     query = """
         SELECT c.*
         FROM CHAMP AS c
-        JOIN requiert AS r ON c.id_champ = r.id_champ
+        JOIN REQUIERT AS r ON c.id_champ = r.id_champ
         WHERE r.IdLogiciel = ?
     """
     return execute_query(query, (logiciel_id, ))
@@ -685,7 +701,7 @@ def get_champ_by_passerelle(passerelle_id):
     query = """
         SELECT c.*
         FROM CHAMP AS c
-        JOIN requiert AS r ON c.id_champ = r.id_champ
+        JOIN REQUIERT AS r ON c.id_champ = r.id_champ
         WHERE r.IdPasserelle = ?
     """
     return execute_query(query, (passerelle_id, ))
@@ -693,14 +709,14 @@ def get_champ_by_passerelle(passerelle_id):
 def get_champ_by_client(client_id):
     """Récupère tous les champs associés à un client selon les passerelles et donc les logiciels associés."""
     query = """
-        SELECT DISTINCT c.lib_champ
+        SELECT DISTINCT c.lib_champ, c.id_champ
         FROM CLIENT cl
         JOIN CLIENT_PASSERELLE cp ON cl.idClient = cp.idClient
         JOIN PASSERELLE p ON cp.IdPasserelle = p.IdPasserelle
         LEFT JOIN Connecte_Logiciel_Source cls ON p.IdPasserelle = cls.IdPasserelle
         LEFT JOIN Connecte_Logiciel_Destination cld ON p.IdPasserelle = cld.IdPasserelle
         JOIN LOGICIEL l ON l.IdLogiciel = COALESCE(cls.IdLogiciel, cld.IdLogiciel)
-        JOIN requiert r ON l.IdLogiciel = r.IdLogiciel
+        JOIN REQUIERT r ON l.IdLogiciel = r.IdLogiciel
         JOIN CHAMP c ON r.id_champ = c.id_champ
         WHERE cl.idClient = ?
     """
@@ -715,17 +731,17 @@ def get_champ_by_client(client_id):
 
 
 ############################################################################################
-#                                   requiert                                                #
+#                                   REQUIERT                                                #
 ############################################################################################
 
 
 def get_all_requiert():
     """Récupère tous les champs de la base de données."""
-    return get_all_records("requiert")
+    return get_all_records("REQUIERT")
 
 def get_requiert_by_id(id_champ, id_logiciel, id_passerelle):
     """Récupère un champ spécifique en fonction de son identifiant."""
-    query = "SELECT * FROM requiert WHERE id_champ = ? AND IdLogiciel = ? AND IdPasserelle = ?"
+    query = "SELECT * FROM REQUIERT WHERE id_champ = ? AND IdLogiciel = ? AND IdPasserelle = ?"
     return execute_query_single(query, (id_champ, id_logiciel, id_passerelle))
 
 def get_requiert_logiciel_by_id(id_champ, id_logiciel):
@@ -738,7 +754,7 @@ def get_requiert_passerelle_by_id(id_champ, id_passerelle):
 
 def add_requiert(id_champ, id_logiciel, id_passerelle):
     """Ajoute un champ avec le libellé et le nom de table spécifiés."""
-    return add_record("requiert", ["id_champ", "IdLogiciel", "IdPasserelle"], [id_champ, id_logiciel, id_passerelle])
+    return add_record("REQUIERT", ["id_champ", "IdLogiciel", "IdPasserelle"], [id_champ, id_logiciel, id_passerelle])
 
 def add_requiert_logiciel(id_champ, id_logiciel):
     """Ajoute un champ avec le libellé et le nom de table spécifiés."""
@@ -750,7 +766,7 @@ def add_requiert_passerelle(id_champ, id_passerelle):
 
 def delete_requiert(id_champ, id_logiciel, id_passerelle):
     """Supprime un champ spécifique en fonction de son identifiant."""
-    return delete_record("requiert", "id_champ = ? AND IdLogiciel = ? AND IdPasserelle = ?", (id_champ, id_logiciel, id_passerelle))
+    return delete_record("REQUIERT", "id_champ = ? AND IdLogiciel = ? AND IdPasserelle = ?", (id_champ, id_logiciel, id_passerelle))
 
 def delete_requiert_logiciel(id_champ, id_logiciel):
     """Supprime un champ spécifique en fonction de son identifiant."""
@@ -762,12 +778,12 @@ def delete_requiert_passerelle(id_champ, id_passerelle):
 
 def get_requiert_by_logiciel(logiciel_id):
     """Récupère tous les champs associés à un logiciel spécifique."""
-    query = "SELECT * FROM requiert WHERE IdLogiciel = ?"
+    query = "SELECT * FROM REQUIERT WHERE IdLogiciel = ?"
     return execute_query(query, (logiciel_id, ))
 
 def get_requiert_by_passerelle(passerelle_id):
     """Récupère tous les champs associés à une passerelle spécifique."""
-    query = "SELECT * FROM requiert WHERE IdPasserelle = ?"
+    query = "SELECT * FROM REQUIERT WHERE IdPasserelle = ?"
     return execute_query(query, (passerelle_id, ))
 
 def get_requiert_by_client(client_id):
@@ -781,7 +797,7 @@ def get_requiert_by_client(client_id):
         LEFT JOIN Connecte_Logiciel_Source cls ON p.IdPasserelle = cls.IdPasserelle
         LEFT JOIN Connecte_Logiciel_Destination cld ON p.IdPasserelle = cld.IdPasserelle
         JOIN LOGICIEL l ON l.IdLogiciel = COALESCE(cls.IdLogiciel, cld.IdLogiciel)
-        JOIN requiert r ON (r.IdLogiciel = l.IdLogiciel OR r.IdPasserelle = p.IdPasserelle)
+        JOIN REQUIERT r ON (r.IdLogiciel = l.IdLogiciel OR r.IdPasserelle = p.IdPasserelle)
         JOIN CHAMP c ON r.id_champ = c.id_champ
         WHERE cl.idClient = ?;
 
@@ -795,20 +811,55 @@ def get_requiert_by_passerelle_and_his_logiciel(passerelle_id):
     """Récupère tous les champs ainsi que leur lib associés à une passerelle ainsi que les champs associés à son logiciel."""
     query = """
         SELECT DISTINCT r.id_champ, c.lib_champ
-        FROM requiert r
+        FROM REQUIERT r
         JOIN CHAMP c ON r.id_champ = c.id_champ
         WHERE r.IdPasserelle = ?
+
         UNION
+
         SELECT DISTINCT r.id_champ, c.lib_champ
-        FROM requiert r
+        FROM REQUIERT r
         JOIN CHAMP c ON r.id_champ = c.id_champ
-        JOIN LOGICIEL l ON r.IdLogiciel = l.IdLogiciel
-        LEFT JOIN Connecte_Logiciel_Source cls ON l.IdLogiciel = cls.IdLogiciel
-        LEFT JOIN Connecte_Logiciel_Destination cld ON l.IdLogiciel = cld.IdLogiciel
-        WHERE cls.IdPasserelle = ? OR cld.IdPasserelle = ?
+        JOIN Connecte_Logiciel_Source cls ON r.IdLogiciel = cls.IdLogiciel
+        WHERE cls.IdPasserelle = ?
+
+        UNION
+
+        SELECT DISTINCT r.id_champ, c.lib_champ
+        FROM REQUIERT r
+        JOIN CHAMP c ON r.id_champ = c.id_champ
+        JOIN Connecte_Logiciel_Destination cld ON r.IdLogiciel = cld.IdLogiciel
+        WHERE cld.IdPasserelle = ?
+
 
     """
     return execute_query(query, (passerelle_id, passerelle_id, passerelle_id))
+
+
+def get_all_fields_requiert_by_client(client_id):
+    """Récupère tous les champs associés à un client (et donc à ses passerelles et logiciels associés)."""
+    query = """
+        SELECT DISTINCT champ.id_champ, champ.lib_champ
+        FROM CLIENT client
+        JOIN CLIENT_PASSERELLE cp ON client.idClient = cp.idClient
+        JOIN PASSERELLE passerelle ON cp.IdPasserelle = passerelle.IdPasserelle
+        JOIN REQUIERT rq ON passerelle.IdPasserelle = rq.IdPasserelle OR rq.IdLogiciel IN (
+            SELECT cls.IdLogiciel
+            FROM Connecte_Logiciel_Source cls
+            WHERE cls.IdPasserelle = passerelle.IdPasserelle
+
+            UNION
+
+            SELECT cld.IdLogiciel
+            FROM Connecte_Logiciel_Destination cld
+            WHERE cld.IdPasserelle = passerelle.IdPasserelle
+        )
+        JOIN CHAMP champ ON rq.id_champ = champ.id_champ
+        WHERE client.idClient = ?
+    """
+    return execute_query(query, (client_id, ))
+
+
 
 
 
@@ -825,21 +876,63 @@ def get_all_champs_clients():
     return get_all_records("CHAMP_CLIENT")
 
 def get_champ_client_by_id(id_client, id_champ):
-    """Récupère un champ spécifique en fonction de son identifiant."""
+    """Récupère un le nom et la valeur d'un champ spécifique en fonction de son identifiant."""
     query = "SELECT * FROM CHAMP_CLIENT WHERE idClient = ? AND id_champ = ?"
     return execute_query_single(query, (id_client, id_champ))
 
 def get_champ_client_by_client(client_id):
     """Récupère tous les champs associés à un client spécifique."""
-    query = "SELECT * FROM CHAMP_CLIENT WHERE idClient = ?"
+    query = "SELECT * FROM CHAMP_CLIENT JOIN CHAMP ON CHAMP_CLIENT.id_champ = CHAMP.id_champ WHERE idClient = ?"
     return execute_query(query, (client_id, ))
+
+def get_champ_client_by_label(label, client_id):
+    """Récupère le champ d'un client spécifique en fonction de son libellé."""
+    query = """
+        SELECT cc.*
+        FROM CHAMP_CLIENT AS cc
+        JOIN CHAMP AS c ON cc.id_champ = c.id_champ
+        WHERE c.lib_champ = ? AND cc.idClient = ?
+    """
+    return execute_query_single(query, (label, client_id))
+
+
 
 def get_champ_client_by_champ(champ_id):
     """Récupère tous les champs associés à un champ spécifique."""
     query = "SELECT * FROM CHAMP_CLIENT WHERE id_champ = ?"
     return execute_query(query, (champ_id, ))
 
+def add_champ_client(id_client, id_champ, valeur):
+    """Ajoute un champ avec le libellé et le nom de table spécifiés.
+    si le champ existe déjà, il est mis à jour avec la nouvelle valeur."""
+    if get_champ_client_by_id(id_client, id_champ):
+        query = """
+            UPDATE CHAMP_CLIENT
+            SET valeur = ?
+            WHERE idClient = ? AND id_champ = ?
+        """
+        return execute_query(query, (valeur, id_client, id_champ))
+    else:
+        return add_record("CHAMP_CLIENT", ["idClient", "id_champ", "valeur"], [id_client, id_champ, valeur])
 
+
+
+
+def delete_champ_client(id_client, id_champ):
+    """Supprime un champ spécifique en fonction de son identifiant."""
+    return delete_record("CHAMP_CLIENT", "idClient = ? AND id_champ = ?", (id_client, id_champ))
+
+def delete_champ_client_libelle(id_client, lib_champ):
+    """Supprime un champ spécifique en fonction de son identifiant."""
+    query = """
+        DELETE FROM CHAMP_CLIENT
+        WHERE idClient = ? AND id_champ = (
+            SELECT id_champ
+            FROM CHAMP
+            WHERE lib_champ = ?
+        )
+    """
+    return execute_query(query, (id_client, lib_champ))
 
 
 
@@ -866,6 +959,7 @@ def drop_all_tables():
     drop_table("Connecte_Logiciel_Source")
     drop_table("Connecte_Logiciel_Destination")
     drop_table("CLIENT_PASSERELLE")
-    drop_table("requiert")
+    drop_table("REQUIERT")
     drop_table("CHAMP")
     drop_table("CHAMP_CLIENT")
+    drop_table("requiert")
